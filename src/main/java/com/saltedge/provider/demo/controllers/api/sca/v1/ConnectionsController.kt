@@ -39,21 +39,32 @@ class ConnectionsController : BaseController() {
 
     @PostMapping
     fun create(@RequestBody request: CreateConnectionRequest): ResponseEntity<CreateConnectionResponse> {
-        val privateDhKey = applicationProperties.privateDhKey
-        val authPublicDhKey = KeyTools.convertPemToPublicKey(request.data.publicKey, KeyTools.Algorithm.DIFFIE_HELLMAN) ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid public key")
-        val sharedSecret: SecretKey = KeyTools.computeSecretKey(privateDhKey, authPublicDhKey)
-        val accessToken = UUID.randomUUID().toString()
-        val accessTokenResponseJson = AccessTokenResponse(accessToken).toJson() ?: ""
-        val encryptedJson = CryptoTools.encryptAes(accessTokenResponseJson, sharedSecret) ?: ""
+        try {
+            val privateDhKey = applicationProperties.privateDhKey
+            val authPublicDhKey =
+                KeyTools.convertPemToPublicKey(request.data.publicKey, KeyTools.Algorithm.DIFFIE_HELLMAN)
+                    ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid public key")
+            val sharedSecret: SecretKey = KeyTools.computeSecretKey(privateDhKey, authPublicDhKey)
+            val accessToken = UUID.randomUUID().toString()
+            val accessTokenResponseJson = AccessTokenResponse(accessToken).toJson() ?: ""
+            val encryptedJson = CryptoTools.encryptAes(accessTokenResponseJson, sharedSecret) ?: ""
 
-        val entity = ScaConnectionEntity()
-        entity.connectionId = request.data.connectionId
-        entity.publicKey = request.data.publicKey
-        entity.returnUrl = request.data.returnUrl
-        entity.accessToken = accessToken
-        connectionsRepository.save(entity)
+            val entity = ScaConnectionEntity()
+            entity.connectionId = request.data.connectionId
+            entity.publicKey = request.data.publicKey
+            entity.returnUrl = request.data.returnUrl
+            entity.accessToken = accessToken
+            connectionsRepository.save(entity)
 
-        val authenticationUrl = "${request.data.returnUrl}?access_token=$encryptedJson"
-        return ResponseEntity(CreateConnectionResponse(data = CreateConnectionResponseData(authenticationUrl = authenticationUrl)), HttpStatus.OK)
+            val authenticationUrl = "${request.data.returnUrl}?access_token=$encryptedJson"
+            return ResponseEntity(
+                CreateConnectionResponse(data = CreateConnectionResponseData(authenticationUrl = authenticationUrl)),
+                HttpStatus.OK
+            )
+        } catch (e: Exception) {
+            println(e.message)
+            e.printStackTrace()
+            throw BadRequest.WrongRequestFormat(errorMessage = "invalid error")
+        }
     }
 }
