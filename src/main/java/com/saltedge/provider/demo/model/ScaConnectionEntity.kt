@@ -29,7 +29,7 @@ class ScaConnectionEntity {
     @Column
     var publicKey: String? = null
 
-    @Column
+    @Column(length = 4096)
     var returnUrl: String? = null
 
     @Column
