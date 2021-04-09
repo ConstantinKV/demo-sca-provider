@@ -64,7 +64,7 @@ class ConnectionsController : BaseController() {
         } catch (e: Exception) {
             println(e.message)
             e.printStackTrace()
-            throw BadRequest.WrongRequestFormat(errorMessage = "invalid error")
+            throw BadRequest.WrongRequestFormat(errorMessage = "Internal error")
         }
     }
 }
