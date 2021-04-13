@@ -21,7 +21,7 @@ abstract class NotFound(errorMessage: String) : RuntimeException(), HttpErrorPar
         get() = _errorMessage
 
     /* NotFound successors  */
-    class AuthorizationNotFound : NotFound("Authorization Not Found.")
-    class ActionNotFound : NotFound("Action Not Found.")
     class UserNotFound : NotFound("User Not Found.")
+    class ConnectionNotFound : NotFound("Connection Not Found.")
+    class ActionNotFound : NotFound("Action Not Found.")
 }

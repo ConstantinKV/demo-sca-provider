@@ -11,6 +11,10 @@ data class CreateConnectionResponse(
     @JsonProperty("data") var data: CreateConnectionResponseData
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class CreateConnectionResponseData(
-    @JsonProperty("authentication_url") var authenticationUrl: String
+    @JsonProperty("authentication_url") var authenticationUrl: String,
+    @JsonProperty("user_id") var userId: String? = null,
+    @JsonProperty("access_token") var accessToken: String? = null,
+    @JsonProperty("rsa_public_key") var rsaPublicKey: String? = null
 )
