@@ -5,6 +5,7 @@ package com.saltedge.provider.demo.controllers.api.sca.v1
 
 import com.saltedge.provider.demo.config.ApplicationProperties
 import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY_PREFIX
+import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.*
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
@@ -47,20 +48,25 @@ class ConnectionsController : BaseController() {
                 ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid rsa public key")
 
             val userId = request.data.connectQuery?.replace(SCA_CONNECT_QUERY_PREFIX, "")
-            val responseData = if (userId == null) {
-                createErrorResponse(request.data.returnUrl)
-            } else {
-                val accessToken = UUID.randomUUID().toString()
-                createScaConnectionEntity(request, authRsaPublicKeyPem, accessToken)
-                val encryptedJson = CryptoTools.encryptAes(AccessTokenResponse(accessToken).toJson() ?: "", sharedSecret) ?: ""
-                CreateConnectionResponseData(
-                    authenticationUrl = "${request.data.returnUrl}?access_token=$encryptedJson",
-                    userId = userId,
-                    accessToken = accessToken,
-                    rsaPublicKey = authRsaPublicKeyPem
-                )
+            val responseData = when {
+                userId == null -> {
+                    createErrorResponse(request.data.returnUrl)
+                }
+                userId != SCA_USER_ID -> {
+                    throw NotFound.UserNotFound()
+                }
+                else -> {
+                    val accessToken = UUID.randomUUID().toString()
+                    createScaConnectionEntity(request, authRsaPublicKeyPem, accessToken)
+                    val encryptedJson = CryptoTools.encryptAes(AccessTokenResponse(accessToken).toJson() ?: "", sharedSecret) ?: ""
+                    CreateConnectionResponseData(
+                        authenticationUrl = "${request.data.returnUrl}?access_token=$encryptedJson",
+                        userId = userId,
+                        accessToken = accessToken,
+                        rsaPublicKey = authRsaPublicKeyPem
+                    )
+                }
             }
-
             return ResponseEntity(CreateConnectionResponse(data = responseData), HttpStatus.OK)
         } catch (e: Exception) {
             println(e.message)

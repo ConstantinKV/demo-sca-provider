@@ -23,7 +23,7 @@ class ScaConnectionEntity {
     @Column
     var updatedAt: Instant? = null
 
-    @Column
+    @Column(unique=true)
     var connectionId: String? = null
 
     @Column(columnDefinition="TEXT")
