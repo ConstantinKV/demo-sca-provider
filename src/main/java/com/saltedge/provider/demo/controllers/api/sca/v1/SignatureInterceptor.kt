@@ -31,7 +31,7 @@ class SignatureInterceptor : HandlerInterceptor {
             jwsParts[1] = Base64.getUrlEncoder().withoutPadding().encodeToString(rawRequestBody.toByteArray(Charsets.UTF_8))
             val encodedJws = jwsParts.joinToString(".")
             val claims: Jws<Claims> = Jwts.parserBuilder()
-                .setSigningKey(applicationProperties?.scaServicePublicRsaKey)
+                .setSigningKey(applicationProperties?.scaServiceRsaPublicKey)
                 .build()
                 .parseClaimsJws(encodedJws)
             return true

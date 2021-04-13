@@ -3,7 +3,10 @@
  */
 package com.saltedge.provider.demo.controllers.auth
 
+import com.saltedge.provider.demo.config.APP_LINK_PREFIX_CONNECT
 import com.saltedge.provider.demo.config.ApplicationProperties
+import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY
+import com.saltedge.provider.demo.config.SCA_PROVIDER_ID
 import com.saltedge.provider.demo.tools.QrTools
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -13,9 +16,6 @@ import java.nio.charset.StandardCharsets
 import javax.servlet.http.HttpServletResponse
 
 const val SCA_CONNECT_QR_PATH = "/sca/connect/qr"
-const val APP_LINK_PREFIX_CONNECT = "authenticator://saltedge.com/connect?configuration="
-const val SCA_PROVIDER_ID = "1"
-const val SCA_CONNECT_QUERY = "A12345678"
 
 @Controller
 class ScaController {
