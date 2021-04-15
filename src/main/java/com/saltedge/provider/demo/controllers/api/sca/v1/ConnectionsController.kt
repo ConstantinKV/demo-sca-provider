@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import javax.crypto.SecretKey
 
-@RestController
+@RestController//https://demo-sca-provider.herokuapp.com
 @RequestMapping(ConnectionsController.BASE_PATH)
 class ConnectionsController : BaseController() {
     companion object {
@@ -71,17 +71,29 @@ class ConnectionsController : BaseController() {
         } catch (e: Exception) {
             println(e.message)
             e.printStackTrace()
-            throw BadRequest.WrongRequestFormat(errorMessage = "Internal error")
+            if (e is NotFound || e is BadRequest) throw e
+            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal create error")
         }
     }
 
     @PutMapping("/{connection_id}/revoke")
-    fun revoke(@PathVariable("connection_id") connectionId: String): ResponseEntity<UpdateConnectionResponse> {
-        connectionsRepository.findFirstByConnectionId(connectionId)?.let {
-            it.revoked = true
-            connectionsRepository.save(it)
-        } ?: throw NotFound.ConnectionNotFound()
-        return ResponseEntity(UpdateConnectionResponse(), HttpStatus.OK)
+    fun revoke(
+        @PathVariable("connection_id") connectionId: String,
+        @RequestBody request: UpdateConnectionRequest
+    ): ResponseEntity<UpdateConnectionResponse> {
+        try {
+            println("revoke request ${request.data != null}")
+            connectionsRepository.findFirstByConnectionIdAndRevokedIsFalse(connectionId)?.let {
+                it.revoked = true
+                connectionsRepository.save(it)
+            } ?: throw NotFound.ConnectionNotFound()
+            return ResponseEntity(UpdateConnectionResponse(), HttpStatus.OK)
+        } catch (e: Exception) {
+            println(e.message)
+            e.printStackTrace()
+            if (e is NotFound || e is BadRequest) throw e
+            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal revoke error")
+        }
     }
 
     private fun createErrorResponse(returnUrl: String): CreateConnectionResponseData {

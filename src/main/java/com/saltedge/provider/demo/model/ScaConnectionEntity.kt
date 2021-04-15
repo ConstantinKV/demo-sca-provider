@@ -24,23 +24,23 @@ class ScaConnectionEntity {
     var updatedAt: Instant? = null
 
     @Column(unique=true)
-    var connectionId: String? = null
+    var connectionId: String = ""
 
     @Column(columnDefinition="TEXT")
-    var dhPublicKey: String? = null
+    var dhPublicKey: String = ""
 
     @Column(columnDefinition="TEXT")
-    var rsaPublicKey: String? = null
+    var rsaPublicKey: String = ""
 
     @Column
-    var returnUrl: String? = null
+    var returnUrl: String = ""
 
     @Column
-    var accessToken: String? = null
+    var accessToken: String = ""
 
     @Column
     var revoked = false
 
     @Column
-    var userId: String? = null
+    var userId: String = ""
 }
