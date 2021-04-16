@@ -21,20 +21,29 @@
       <div class="section">
         <form action="#" method="post">
           <div class="row">
+            <div class="col s6">
+              <div class="row">
+                <div class="input-field">
+                  <input value="${sca_url}" id="sca_url" name="sca_url" type="text" class="validate">
+                  <label class="active" for="sca_service_url">SCA Service URL</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field">
+                  <input value="${provider_id}" id="provider_id" name="provider_id" type="text" class="validate">
+                  <label class="active" for="provider_id">Provider ID</label>
+                </div>
+              </div>
+            </div>
             <div class="input-field col s6">
-              <input value="${sca_service_url}" id="sca_service_url" name="sca_service_url" type="text" class="validate">
-              <label class="active" for="sca_service_url">SCA Service URL</label>
+              <textarea id="sca_rsa_key" class="materialize-textarea" name="sca_rsa_key" type="text">${sca_rsa_key}</textarea>
+              <label class="active" for="sca_rsa_key">SCA RSA Public Key</label>
             </div>
           </div>
 
           <div class="row">
-            <div class="input-field col s6">
-              <input value="${provider_id}" id="provider_id" name="provider_id" type="text" class="validate">
-              <label class="active" for="provider_id">Provider ID</label>
-            </div>
+            <input type="submit" class ="btn waves-effect waves-light center" value = "Submit"/>
           </div>
-
-          <input type="submit" class ="btn waves-effect waves-light" value = "Submit"/>
         <form>
       </div>
       <br><br>

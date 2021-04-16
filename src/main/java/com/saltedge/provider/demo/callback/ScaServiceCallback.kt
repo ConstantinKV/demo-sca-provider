@@ -67,7 +67,7 @@ class ScaServiceCallback {
         try {
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
-            headers.set("Provider-Id", applicationProperties.providerId)
+            headers.set("Provider-Id", applicationProperties.scaProviderId)
             headers.set("x-jws-signature", signature)
 
             return callbackRestTemplate.exchange(url, HttpMethod.POST, HttpEntity(request, headers), Any::class.java)

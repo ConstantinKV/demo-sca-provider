@@ -4,6 +4,8 @@
 package com.saltedge.provider.demo.controllers.provider
 
 import com.saltedge.provider.demo.config.ApplicationProperties
+import com.saltedge.provider.demo.tools.ResourceTools
+import com.saltedge.provider.demo.tools.security.KeyTools
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,30 +17,31 @@ import org.springframework.web.servlet.ModelAndView
 class SettingsController {
 
     @Autowired
-    lateinit var applicationProperties: ApplicationProperties
+    lateinit var properties: ApplicationProperties
 
     @GetMapping("/settings")
     fun showSettings(): ModelAndView {
         return ModelAndView("settings")
-            .addObject("sca_service_url", applicationProperties.scaServiceUrl)
-            .addObject("provider_id", applicationProperties.providerId)
+            .addObject("sca_url", properties.scaServiceUrl)
+            .addObject("provider_id", properties.scaProviderId)
+            .addObject("sca_rsa_key", properties.scaServiceRsaPublicKeyPem)
     }
 
     @PostMapping("/settings")
     fun submitSettings(
-        @RequestParam("sca_service_url") scaServiceUrl: String,
+        @RequestParam("sca_url") scaServiceUrl: String,
         @RequestParam("provider_id") providerId: String,
+        @RequestParam("sca_rsa_key") scaServiceRsaPublicKey: String
     ): ModelAndView {
-        if (scaServiceUrl.isNotBlank() && scaServiceUrl != applicationProperties.scaServiceUrl) {
-            applicationProperties.scaServiceUrl = scaServiceUrl
+        if (scaServiceUrl.isNotBlank() && scaServiceUrl != properties.scaServiceUrl) {
+            properties.scaServiceUrl = scaServiceUrl
         }
-        if (providerId.isNotBlank() && providerId != applicationProperties.providerId) {
-            applicationProperties.providerId = providerId
+        if (providerId.isNotBlank() && providerId != properties.scaProviderId) {
+            properties.scaProviderId = providerId
         }
-        println("submitSettings scaServiceUrl:$scaServiceUrl [${applicationProperties.scaServiceUrl}]")
-        println("submitSettings providerId:$providerId [${applicationProperties.providerId}]")
-        return ModelAndView("settings")
-            .addObject("sca_service_url", applicationProperties.scaServiceUrl)
-            .addObject("provider_id", applicationProperties.providerId)
+        if (scaServiceRsaPublicKey != properties.scaServiceRsaPublicKeyPem) {
+            properties.scaServiceRsaPublicKeyPem = providerId
+        }
+        return ModelAndView("redirect:/settings")
     }
 }

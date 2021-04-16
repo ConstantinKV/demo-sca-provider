@@ -22,46 +22,61 @@ const val SCA_CONNECT_QUERY = "$SCA_CONNECT_QUERY_PREFIX$SCA_USER_ID"
 @ConfigurationProperties
 open class ApplicationProperties {
     lateinit var applicationUrl: String
-    lateinit var applicationPrivateRsaKeyPem: String
-    lateinit var applicationPublicRsaKeyPem: String
-    lateinit var applicationPrivateDhKeyPem: String
-    lateinit var applicationPublicDhKeyPem: String
+    lateinit var applicationPrivateRsaKeyFile: String
+    lateinit var applicationPublicRsaKeyFile: String
+    lateinit var applicationPrivateDhKeyFile: String
+    lateinit var applicationPublicDhKeyFile: String
     lateinit var scaServiceUrl: String
-    lateinit var scaServicePublicRsaKeyPem: String
-    lateinit var providerId: String
+    var scaServicePublicRsaKeyFile: String = ""
+    lateinit var scaProviderId: String
+
+    private var _scaServiceRsaPublicKeyPem: String = ""
 
     val rsaPrivateKey: PrivateKey by lazy {
         KeyTools.convertPemToPrivateKey(
-            ResourceTools.readKeyFile(applicationPrivateRsaKeyPem),
+            ResourceTools.readKeyFile(applicationPrivateRsaKeyFile),
             KeyTools.Algorithm.RSA
         )!!
     }
 
     val rsaPublicKey: PublicKey by lazy {
         KeyTools.convertPemToPublicKey(
-            ResourceTools.readKeyFile(applicationPublicRsaKeyPem),
+            ResourceTools.readKeyFile(applicationPublicRsaKeyFile),
             KeyTools.Algorithm.RSA
         )!!
     }
 
     val dhPrivateKey: PrivateKey by lazy {
         KeyTools.convertPemToPrivateKey(
-            ResourceTools.readKeyFile(applicationPrivateDhKeyPem),
+            ResourceTools.readKeyFile(applicationPrivateDhKeyFile),
             KeyTools.Algorithm.DIFFIE_HELLMAN
         )!!
     }
 
     val dhPublicKey: PublicKey by lazy {
         KeyTools.convertPemToPublicKey(
-            ResourceTools.readKeyFile(applicationPublicDhKeyPem),
+            ResourceTools.readKeyFile(applicationPublicDhKeyFile),
             KeyTools.Algorithm.DIFFIE_HELLMAN
         )!!
     }
 
-    val scaServiceRsaPublicKey: PublicKey by lazy {
-        KeyTools.convertPemToPublicKey(
-            ResourceTools.readKeyFile(scaServicePublicRsaKeyPem),
-            KeyTools.Algorithm.RSA
-        )!!
+    var scaServiceRsaPublicKeyPem: String
+        get() = getScaRsaPem()
+        set(value) = setScaRsaPem(value)
+
+    val scaServiceRsaPublicKey: PublicKey
+        get() = KeyTools.convertPemToPublicKey(scaServiceRsaPublicKeyPem, KeyTools.Algorithm.RSA)!!
+
+    private fun getScaRsaPem(): String {
+        if (_scaServiceRsaPublicKeyPem.isEmpty()) {
+            _scaServiceRsaPublicKeyPem = ResourceTools.readKeyFile(scaServicePublicRsaKeyFile)
+        }
+        return _scaServiceRsaPublicKeyPem
+    }
+
+    private fun setScaRsaPem(pem: String) {
+        KeyTools.convertPemToPublicKey(pem, KeyTools.Algorithm.RSA)?.let {
+            _scaServiceRsaPublicKeyPem = pem
+        }
     }
 }
