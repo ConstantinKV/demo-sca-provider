@@ -29,7 +29,7 @@ class ActionsController : BaseController() {
         @PathVariable("action_id") actionId: Long,
         @RequestBody request: UpdateActionRequest
     ): ResponseEntity<UpdateActionResponse> {
-        val action = repository.findById(actionId).orElseThrow() ?: throw NotFound.ActionNotFound()
+        val action = repository.findById(actionId).orElse(null) ?: throw NotFound.ActionNotFound()
         action.status = "confirmed"
         repository.save(action)
         return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(closeAction = true)), HttpStatus.OK)
@@ -40,7 +40,7 @@ class ActionsController : BaseController() {
         @PathVariable("action_id") actionId: Long,
         @RequestBody request: UpdateActionRequest
     ): ResponseEntity<UpdateActionResponse> {
-        val action = repository.findById(actionId).orElseThrow() ?: throw NotFound.ActionNotFound()
+        val action = repository.findById(actionId).orElse(null) ?: throw NotFound.ActionNotFound()
         action.status = "denied"
         repository.save(action)
         return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(closeAction = true)), HttpStatus.OK)
