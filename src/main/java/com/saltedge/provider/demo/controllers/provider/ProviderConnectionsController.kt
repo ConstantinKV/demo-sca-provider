@@ -50,7 +50,7 @@ class ProviderConnectionsController {
      * authenticator://saltedge.com/connect?configuration=https://saltedge.com/configuration&connect_query=A12345678
      */
     private fun createConnectAppLink(): String {
-        val configurationUrl = "${applicationProperties.scaServiceUrl}/api/authenticator/v2/configurations/${applicationProperties.providerId}"
+        val configurationUrl = "${applicationProperties.scaServiceUrl}/api/authenticator/v2/configurations/${applicationProperties.scaProviderId}"
         val encodedConfigurationUrl = URLEncoder.encode(configurationUrl, StandardCharsets.UTF_8.toString())
         val encodedConnectQuery = URLEncoder.encode(SCA_CONNECT_QUERY, StandardCharsets.UTF_8.toString())
         return "$APP_LINK_PREFIX_CONNECT$encodedConfigurationUrl&connect_query=$encodedConnectQuery"
