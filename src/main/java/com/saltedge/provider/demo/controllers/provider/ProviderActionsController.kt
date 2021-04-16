@@ -27,8 +27,11 @@ class ProviderActionsController {
 
     @GetMapping("/actions")
     fun showActions(): ModelAndView {
+        val connections = connectionsRepository.findByRevokedIsFalse()
         val actions = actionsRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
-        return ModelAndView("actions").addObject("actions", actions)
+        return ModelAndView("actions")
+            .addObject("actions", actions)
+            .addObject("disabled", if (connections.isEmpty()) "disabled" else "")
     }
 
     @GetMapping("/actions/create")

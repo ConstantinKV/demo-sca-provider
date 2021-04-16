@@ -24,7 +24,7 @@
     <br><br>
     <h1 class="header center brown-text">Connections</h1>
     <div class="row center">
-      <h5 class="header col s12 light">Scan qr code with Salt Edge Authenticator to initiate enrollment flow</h5>
+      <h5 class="header col s12 light"><a href="/connections/qr">Scan qr code with Salt Edge Authenticator to initiate enrollment flow</a></h5>
     </div>
 
     <div class="row center">

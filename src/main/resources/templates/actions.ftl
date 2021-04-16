@@ -24,7 +24,7 @@
     <br><br>
     <h1 class="header center brown-text">Actions</h1>
     <div class="row center">
-      <a href="/actions/create" id="create-button" class="btn-large waves-effect waves-light red">Create new action</a>
+      <a href="/actions/create" id="create-button" class="btn-large waves-effect waves-light red ${disabled}">Create new action</a>
     </div>
 
     <div class="row center">

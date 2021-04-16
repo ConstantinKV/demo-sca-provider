@@ -23,10 +23,10 @@
         <!--   Icon Section   -->
         <div class="row">
           <div class="col s12 m4">
-            <a class="match-parent" href="/connections/qr">
+            <a class="match-parent" href="/settings">
               <div class="icon-block">
-                <h2 class="center light-blue-text"><i class="material-icons">phone_iphone</i></h2>
-                <h5 class="center black-text">Add Salt Edge Authenticator</h5>
+                <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
+                <h5 class="center black-text">SCA Service settings</h5>
               </div>
             </a>
           </div>
@@ -51,12 +51,10 @@
         </div>
         <div class="row">
           <div class="col s12 m4">
-            <a class="match-parent" href="/settings">
-              <div class="icon-block">
-                <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-                <h5 class="center black-text">SCA Service settings</h5>
-              </div>
-            </a>
+            <div class="icon-block center">
+              <img src="/connections/qr" width="128" height="128" alt="Add Salt Edge Authenticator">
+              <h5 class="center black-text">Add Salt Edge Authenticator</h5>
+            </div>
           </div>
         </div>
       </div>
