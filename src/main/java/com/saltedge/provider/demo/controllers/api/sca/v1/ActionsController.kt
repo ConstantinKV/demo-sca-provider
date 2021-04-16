@@ -23,6 +23,7 @@ class ActionsController : BaseController() {
     @Autowired
     lateinit var repository: ScaActionsRepository
 
+    @Throws(Exception::class)
     @PutMapping("/{action_id}/confirm")
     fun confirm(
         @PathVariable("action_id") actionId: Long,
