@@ -11,7 +11,6 @@ import java.security.PrivateKey
 import java.security.PublicKey
 
 const val APP_LINK_PREFIX_CONNECT = "authenticator://saltedge.com/connect?configuration="
-const val SCA_PROVIDER_ID = "1"
 const val SCA_USER_ID = "123"
 const val SCA_CONNECT_QUERY_PREFIX = "query-"
 const val SCA_CONNECT_QUERY = "$SCA_CONNECT_QUERY_PREFIX$SCA_USER_ID"
@@ -29,6 +28,7 @@ open class ApplicationProperties {
     lateinit var applicationPublicDhKeyPem: String
     lateinit var scaServiceUrl: String
     lateinit var scaServicePublicRsaKeyPem: String
+    lateinit var providerId: String
 
     val rsaPrivateKey: PrivateKey by lazy {
         KeyTools.convertPemToPrivateKey(
