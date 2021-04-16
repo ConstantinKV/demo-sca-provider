@@ -47,9 +47,10 @@ class ProviderActionsController {
 
     @GetMapping("/actions/{action_id}/close")
     fun closeAction(@PathVariable("action_id") actionId: Long): ModelAndView {
-        val action = actionsRepository.findById(actionId).orElseThrow()
-        action.status = "closed"
-        actionsRepository.save(action)
+        actionsRepository.findById(actionId).orElse(null)?.let {
+            it.status = "closed"
+            actionsRepository.save(it)
+        }
         return ModelAndView("redirect:/actions")
     }
 }
