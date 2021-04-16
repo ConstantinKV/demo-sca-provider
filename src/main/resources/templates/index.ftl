@@ -35,7 +35,7 @@
             <a class="match-parent" href="/connections">
               <div class="icon-block">
                 <h2 class="center light-blue-text"><i class="material-icons">link</i></h2>
-                <h5 class="center black-text">Connections</h5>
+                <h5 class="center black-text">SCA Connections</h5>
               </div>
             </a>
           </div>
@@ -45,6 +45,16 @@
               <div class="icon-block">
                 <h2 class="center light-blue-text"><i class="material-icons">payment</i></h2>
                 <h5 class="center black-text">Create an Action</h5>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12 m4">
+            <a class="match-parent" href="/settings">
+              <div class="icon-block">
+                <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
+                <h5 class="center black-text">SCA Service settings</h5>
               </div>
             </a>
           </div>
