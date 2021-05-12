@@ -3,9 +3,7 @@
  */
 package com.saltedge.provider.demo.controllers.provider
 
-import com.saltedge.provider.demo.config.ApplicationProperties
-import com.saltedge.provider.demo.tools.ResourceTools
-import com.saltedge.provider.demo.tools.security.KeyTools
+import com.saltedge.provider.demo.config.DemoApplicationProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,14 +15,14 @@ import org.springframework.web.servlet.ModelAndView
 class SettingsController {
 
     @Autowired
-    lateinit var properties: ApplicationProperties
+    lateinit var propertiesDemo: DemoApplicationProperties
 
     @GetMapping("/settings")
     fun showSettings(): ModelAndView {
         return ModelAndView("settings")
-            .addObject("sca_url", properties.scaServiceUrl)
-            .addObject("provider_id", properties.scaProviderId)
-            .addObject("sca_rsa_key", properties.scaServiceRsaPublicKeyPem)
+            .addObject("sca_url", propertiesDemo.scaServiceUrl)
+            .addObject("provider_id", propertiesDemo.scaProviderId)
+            .addObject("sca_rsa_key", propertiesDemo.scaServiceRsaPublicKeyPem)
     }
 
     @PostMapping("/settings")
@@ -33,14 +31,14 @@ class SettingsController {
         @RequestParam("provider_id") providerId: String,
         @RequestParam("sca_rsa_key") scaServiceRsaPublicKey: String
     ): ModelAndView {
-        if (scaServiceUrl.isNotBlank() && scaServiceUrl != properties.scaServiceUrl) {
-            properties.scaServiceUrl = scaServiceUrl
+        if (scaServiceUrl.isNotBlank() && scaServiceUrl != propertiesDemo.scaServiceUrl) {
+            propertiesDemo.scaServiceUrl = scaServiceUrl
         }
-        if (providerId.isNotBlank() && providerId != properties.scaProviderId) {
-            properties.scaProviderId = providerId
+        if (providerId.isNotBlank() && providerId != propertiesDemo.scaProviderId) {
+            propertiesDemo.scaProviderId = providerId
         }
-        if (scaServiceRsaPublicKey != properties.scaServiceRsaPublicKeyPem) {
-            properties.scaServiceRsaPublicKeyPem = providerId
+        if (scaServiceRsaPublicKey != propertiesDemo.scaServiceRsaPublicKeyPem) {
+            propertiesDemo.scaServiceRsaPublicKeyPem = providerId
         }
         return ModelAndView("redirect:/settings")
     }

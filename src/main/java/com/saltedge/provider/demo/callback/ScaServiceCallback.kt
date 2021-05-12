@@ -4,7 +4,7 @@
 package com.saltedge.provider.demo.callback
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.saltedge.provider.demo.config.ApplicationProperties
+import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.model.ScaActionEntity
 import com.saltedge.provider.demo.model.ScaConnectionEntity
@@ -32,15 +32,45 @@ import java.util.*
 class ScaServiceCallback {
 
     @Autowired
-    lateinit var applicationProperties: ApplicationProperties
+    lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
     @Qualifier("ScaServiceCallbackRestTemplateBean")
-    lateinit var callbackRestTemplate: RestTemplate
+    lateinit var scaCallbackRest: RestTemplate
     private var mapper: ObjectMapper = JsonTools.createDefaultMapper()
 
     @Bean
     @Qualifier("ScaServiceCallbackRestTemplateBean")
-    fun createRestTemplate(): RestTemplate = RestTemplate()
+    fun createScaRest(): RestTemplate = RestTemplate()
+
+    @Async
+    fun sendSuccessAuthenticationCallback(scaConnectionId: String, accessToken: String, rsaPublicKey: String) {
+        val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
+        val request = SuccessAuthenticationRequest(
+            data = SuccessAuthenticationRequestData(
+                userId = SCA_USER_ID,
+                accessToken = accessToken,
+                rsaPublicKey = rsaPublicKey
+            ),
+            exp = requestExpiresAt.epochSecond.toInt()
+        )
+        val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/success_authentication"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.scaServiceRsaPublicKey)
+        val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
+        println("sendSuccessAuthenticationCallback:statusCode: ${result?.statusCode}")
+    }
+
+    @Async
+    fun sendFailAuthenticationCallback(scaConnectionId: String, failMessage: String) {
+        val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
+        val request = FailAuthenticationRequest(
+            data = FailAuthenticationRequestData(failMessage = failMessage),
+            exp = requestExpiresAt.epochSecond.toInt()
+        )
+        val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/fail_authentication"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.scaServiceRsaPublicKey)
+        val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
+        println("sendFailAuthenticationCallback:statusCode: ${result?.statusCode}")
+    }
 
     @Async
     fun sendActionCreateCallback(action: ScaActionEntity, connections: List<ScaConnectionEntity>) {
@@ -57,20 +87,20 @@ class ScaServiceCallback {
             ),
             exp = requestExpiresAt.epochSecond.toInt()
         )
-        val url: String = applicationProperties.scaServiceUrl + "/api/sca/v1/actions"
-        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = applicationProperties.scaServiceRsaPublicKey)
-        val result = doCallbackRequest(url, signature, request)
+        val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/actions"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.scaServiceRsaPublicKey)
+        val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
         println("sendActionCreateCallback:result: " + result?.body?.toString())
     }
 
-    private fun doCallbackRequest(url: String, signature: String, request: Any): ResponseEntity<Any>? {
+    private fun doCallbackRequest(method: HttpMethod, url: String, signature: String, request: Any): ResponseEntity<Any>? {
         try {
             val headers = HttpHeaders()
             headers.contentType = MediaType.APPLICATION_JSON
-            headers.set("Provider-Id", applicationProperties.scaProviderId)
+            headers.set("Provider-Id", demoApplicationProperties.scaProviderId)
             headers.set("x-jws-signature", signature)
 
-            return callbackRestTemplate.exchange(url, HttpMethod.POST, HttpEntity(request, headers), Any::class.java)
+            return scaCallbackRest.exchange(url, method, HttpEntity(request, headers), Any::class.java)
         } catch (e: HttpClientErrorException) {
             e.printStackTrace()
         } catch (e: HttpServerErrorException) {

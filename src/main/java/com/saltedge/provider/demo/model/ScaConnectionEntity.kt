@@ -27,9 +27,6 @@ class ScaConnectionEntity {
     var connectionId: String = ""
 
     @Column(columnDefinition="TEXT")
-    var dhPublicKey: String = ""
-
-    @Column(columnDefinition="TEXT")
     var rsaPublicKey: String = ""
 
     @Column
