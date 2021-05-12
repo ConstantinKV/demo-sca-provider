@@ -12,8 +12,13 @@ data class CreateConnectionRequest(
 
 data class CreateConnectionRequestData(
     @JsonProperty("connection_id") var connectionId: String,
-    @JsonProperty("dh_public_key") var dhPublicKey: String,
-    @JsonProperty("enc_rsa_public_key") var encRsaPublicKey: String,
     @JsonProperty("return_url") var returnUrl: String,
+    @JsonProperty("enc_rsa_public_key") var encRsaPublicKey: EncryptedEntity,
     @JsonProperty("connect_query") var connectQuery: String?
+)
+
+data class EncryptedEntity(
+    @JsonProperty("key") var encryptedKey: String,
+    @JsonProperty("iv") var encryptedIv: String,
+    @JsonProperty("data") var encryptedData: String
 )

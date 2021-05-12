@@ -3,25 +3,19 @@
  */
 package com.saltedge.provider.demo.controllers.api.sca.v1
 
-import com.saltedge.provider.demo.config.ApplicationProperties
-import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY_PREFIX
-import com.saltedge.provider.demo.config.SCA_USER_ID
-import com.saltedge.provider.demo.controllers.api.sca.v1.model.*
+import com.saltedge.provider.demo.config.DemoApplicationProperties
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionRequest
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionResponse
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.UpdateConnectionRequest
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.UpdateConnectionResponse
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
-import com.saltedge.provider.demo.model.ScaConnectionEntity
-import com.saltedge.provider.demo.model.ScaConnectionsRepository
 import com.saltedge.provider.demo.tools.security.CryptoTools
 import com.saltedge.provider.demo.tools.security.KeyTools
-import com.saltedge.provider.demo.tools.toJson
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.util.*
-import javax.crypto.SecretKey
 
 @RestController//https://demo-sca-provider.herokuapp.com
 @RequestMapping(ConnectionsController.BASE_PATH)
@@ -29,44 +23,19 @@ class ConnectionsController : BaseController() {
     companion object {
         const val BASE_PATH: String = "$API_BASE_PATH/connections"
     }
-
     @Autowired
-    lateinit var applicationProperties: ApplicationProperties
-
+    lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
-    lateinit var connectionsRepository: ScaConnectionsRepository
+    lateinit var connectionsService: ConnectionsService
 
     @PostMapping
     fun create(@RequestBody request: CreateConnectionRequest): ResponseEntity<CreateConnectionResponse> {
         try {
-            val dhPrivateKey = applicationProperties.dhPrivateKey
-            val authDhPublicKey = KeyTools.convertPemToPublicKey(request.data.dhPublicKey, KeyTools.Algorithm.DIFFIE_HELLMAN)
-                ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid dh public key")
-            val sharedSecret: SecretKey = KeyTools.computeSecretKey(dhPrivateKey, authDhPublicKey)
-            val authRsaPublicKeyPem = CryptoTools.decryptAes(request.data.encRsaPublicKey, sharedSecret) ?: ""
+            val rsaPrivateKey = demoApplicationProperties.rsaPrivateKey
+            val authRsaPublicKeyPem = CryptoTools.decryptPublicRsaKey(request.data.encRsaPublicKey, rsaPrivateKey)
             KeyTools.convertPemToPublicKey(authRsaPublicKeyPem, KeyTools.Algorithm.RSA)
                 ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid rsa public key")
-
-            val userId = request.data.connectQuery?.replace(SCA_CONNECT_QUERY_PREFIX, "")
-            val responseData = when {
-                userId == null -> {
-                    createErrorResponse(request.data.returnUrl)
-                }
-                userId != SCA_USER_ID -> {
-                    throw NotFound.UserNotFound()
-                }
-                else -> {
-                    val accessToken = UUID.randomUUID().toString()
-                    createScaConnectionEntity(request, authRsaPublicKeyPem, accessToken)
-                    val encryptedJson = CryptoTools.encryptAes(AccessTokenResponse(accessToken).toJson() ?: "", sharedSecret) ?: ""
-                    CreateConnectionResponseData(
-                        authenticationUrl = "${request.data.returnUrl}?access_token=$encryptedJson",
-                        userId = userId,
-                        accessToken = accessToken,
-                        rsaPublicKey = authRsaPublicKeyPem
-                    )
-                }
-            }
+            val responseData = connectionsService.connectRequest(request.data, authRsaPublicKeyPem)
             return ResponseEntity(CreateConnectionResponse(data = responseData), HttpStatus.OK)
         } catch (e: Exception) {
             println(e.message)
@@ -82,11 +51,7 @@ class ConnectionsController : BaseController() {
         @RequestBody request: UpdateConnectionRequest
     ): ResponseEntity<UpdateConnectionResponse> {
         try {
-            println("revoke request ${request.data != null}")
-            connectionsRepository.findFirstByConnectionIdAndRevokedIsFalse(connectionId)?.let {
-                it.revoked = true
-                connectionsRepository.save(it)
-            } ?: throw NotFound.ConnectionNotFound()
+            connectionsService.revokeConnection(connectionId)
             return ResponseEntity(UpdateConnectionResponse(), HttpStatus.OK)
         } catch (e: Exception) {
             println(e.message)
@@ -94,22 +59,5 @@ class ConnectionsController : BaseController() {
             if (e is NotFound || e is BadRequest) throw e
             else throw BadRequest.WrongRequestFormat(errorMessage = "Internal revoke error")
         }
-    }
-
-    private fun createErrorResponse(returnUrl: String): CreateConnectionResponseData {
-        val error = URLEncoder.encode("Invalid connect query", StandardCharsets.UTF_8.toString())
-        return CreateConnectionResponseData(
-            authenticationUrl = "$returnUrl?error_class=AUTHENTICATION_FAILED&error_message=$error"
-        )
-    }
-
-    private fun createScaConnectionEntity(request: CreateConnectionRequest, authRsaPublicKeyPem: String, accessToken: String) {
-        val entity = ScaConnectionEntity()
-        entity.connectionId = request.data.connectionId
-        entity.dhPublicKey = request.data.dhPublicKey
-        entity.rsaPublicKey = authRsaPublicKeyPem
-        entity.returnUrl = request.data.returnUrl
-        entity.accessToken = accessToken
-        connectionsRepository.save(entity)
     }
 }

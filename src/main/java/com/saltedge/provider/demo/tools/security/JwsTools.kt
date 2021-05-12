@@ -3,7 +3,7 @@
  */
 package com.saltedge.provider.demo.tools.security
 
-import com.saltedge.provider.demo.config.ApplicationProperties
+import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.tools.JsonTools
 import io.jsonwebtoken.*
@@ -16,7 +16,7 @@ import java.util.*
 object JwsTools {
 
     @Autowired
-    lateinit var applicationProperties: ApplicationProperties
+    lateinit var demoApplicationProperties: DemoApplicationProperties
 
     public fun encode(requestData: Any, expiresAt: Instant, key: PublicKey): String {
         val jws: String = Jwts.builder()
@@ -38,7 +38,7 @@ object JwsTools {
             jwsParts[1] = Base64.getUrlEncoder().withoutPadding().encodeToString(rawRequestBody.toByteArray(Charsets.UTF_8))
             val encodedJws = jwsParts.joinToString(".")
             val claims: Jws<Claims> = Jwts.parserBuilder()
-                .setSigningKey(applicationProperties.scaServiceRsaPublicKey)
+                .setSigningKey(demoApplicationProperties.scaServiceRsaPublicKey)
                 .build()
                 .parseClaimsJws(encodedJws)
             return true

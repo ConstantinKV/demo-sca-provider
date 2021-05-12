@@ -3,6 +3,8 @@
  */
 package com.saltedge.provider.demo.tools.security;
 
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.EncryptedEntity;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -73,5 +75,20 @@ public class CryptoTools {
         Cipher cipher = Cipher.getInstance(RSA_ECB);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return cipher.doFinal(data);
+    }
+
+    public static String decryptPublicRsaKey(
+      EncryptedEntity encryptedData,
+      PrivateKey rsaPrivateKey
+    ) {
+        try {
+            byte[] key = decryptRsa(encryptedData.getEncryptedKey().getBytes(), rsaPrivateKey);
+            byte[] iv = decryptRsa(encryptedData.getEncryptedIv().getBytes(), rsaPrivateKey);
+            byte[] keyBytes = decryptAes(encryptedData.getEncryptedData().getBytes(), key, iv);
+            return new String(keyBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

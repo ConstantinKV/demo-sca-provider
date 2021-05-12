@@ -4,7 +4,7 @@
 package com.saltedge.provider.demo.controllers.provider
 
 import com.saltedge.provider.demo.config.APP_LINK_PREFIX_CONNECT
-import com.saltedge.provider.demo.config.ApplicationProperties
+import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY
 import com.saltedge.provider.demo.model.ScaConnectionsRepository
 import com.saltedge.provider.demo.tools.QrTools
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse
 class ProviderConnectionsController {
 
     @Autowired
-    lateinit var applicationProperties: ApplicationProperties
+    lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
     lateinit var repository: ScaConnectionsRepository
 
@@ -50,7 +50,7 @@ class ProviderConnectionsController {
      * authenticator://saltedge.com/connect?configuration=https://saltedge.com/configuration&connect_query=A12345678
      */
     private fun createConnectAppLink(): String {
-        val configurationUrl = "${applicationProperties.scaServiceUrl}/api/authenticator/v2/configurations/${applicationProperties.scaProviderId}"
+        val configurationUrl = "${demoApplicationProperties.scaServiceUrl}/api/authenticator/v2/configurations/${demoApplicationProperties.scaProviderId}"
         val encodedConfigurationUrl = URLEncoder.encode(configurationUrl, StandardCharsets.UTF_8.toString())
         val encodedConnectQuery = URLEncoder.encode(SCA_CONNECT_QUERY, StandardCharsets.UTF_8.toString())
         return "$APP_LINK_PREFIX_CONNECT$encodedConfigurationUrl&connect_query=$encodedConnectQuery"
