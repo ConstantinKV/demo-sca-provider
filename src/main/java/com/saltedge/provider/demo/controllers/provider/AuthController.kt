@@ -21,7 +21,7 @@ class AuthController {
         fun authenticationPageUrl(applicationUrl: String, connectionId: String, connectQuery: String): String {
             return UriComponentsBuilder.fromUriString(applicationUrl).path(BASE_PATH)
                 .queryParam(KEY_SCA_CONNECTION_ID, connectionId)
-                .queryParam(KEY_CONNECT_QUERY, "")
+                .queryParam(KEY_CONNECT_QUERY, connectQuery)
                 .build().toUriString()
         }
     }

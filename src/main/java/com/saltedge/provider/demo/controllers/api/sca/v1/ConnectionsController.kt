@@ -41,7 +41,7 @@ class ConnectionsController : BaseController() {
             println(e.message)
             e.printStackTrace()
             if (e is NotFound || e is BadRequest) throw e
-            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal create error")
+            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal error")
         }
     }
 
@@ -57,7 +57,7 @@ class ConnectionsController : BaseController() {
             println(e.message)
             e.printStackTrace()
             if (e is NotFound || e is BadRequest) throw e
-            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal revoke error")
+            else throw BadRequest.WrongRequestFormat(errorMessage = "Internal error")
         }
     }
 }

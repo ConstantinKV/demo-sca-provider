@@ -46,18 +46,18 @@ public class CryptoTools {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] aesKeyHash = digest.digest(aesKey);
             byte[] iv = Arrays.copyOfRange(aesKeyHash, 0, 16);
-            byte[] decodedData = Base64.getDecoder().decode(data);
-            return new String(decryptAes(decodedData, aesKey, iv));
+            return new String(decryptAes(data, aesKey, iv));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static byte[] decryptAes(byte[] encryptedData, byte[] key, byte[] iv) throws Exception {
+    public static byte[] decryptAes(String encryptedData, byte[] key, byte[] iv) throws Exception {
+        byte[] bytes = Base64.getMimeDecoder().decode(encryptedData);
         Cipher cipher = Cipher.getInstance(AES_CBC);
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
-        return cipher.doFinal(encryptedData);
+        return cipher.doFinal(bytes);
     }
 
     public static byte[] encryptRsa(byte[] data, PublicKey publicKey) {
@@ -71,10 +71,11 @@ public class CryptoTools {
         return new byte[0];
     }
 
-    public static byte[] decryptRsa(byte[] data, PrivateKey privateKey) throws Exception {
+    public static byte[] decryptRsa(String data, PrivateKey privateKey) throws Exception {
+        byte[] bytes = Base64.getMimeDecoder().decode(data);
         Cipher cipher = Cipher.getInstance(RSA_ECB);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        return cipher.doFinal(data);
+        return cipher.doFinal(bytes);
     }
 
     public static String decryptPublicRsaKey(
@@ -82,9 +83,9 @@ public class CryptoTools {
       PrivateKey rsaPrivateKey
     ) {
         try {
-            byte[] key = decryptRsa(encryptedData.getEncryptedKey().getBytes(), rsaPrivateKey);
-            byte[] iv = decryptRsa(encryptedData.getEncryptedIv().getBytes(), rsaPrivateKey);
-            byte[] keyBytes = decryptAes(encryptedData.getEncryptedData().getBytes(), key, iv);
+            byte[] key = decryptRsa(encryptedData.getEncryptedKey(), rsaPrivateKey);
+            byte[] iv = decryptRsa(encryptedData.getEncryptedIv(), rsaPrivateKey);
+            byte[] keyBytes = decryptAes(encryptedData.getEncryptedData(), key, iv);
             return new String(keyBytes);
         } catch (Exception e) {
             e.printStackTrace();

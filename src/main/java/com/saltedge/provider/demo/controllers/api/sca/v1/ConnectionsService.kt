@@ -10,6 +10,7 @@ import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionRequestData
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionResponseData
 import com.saltedge.provider.demo.controllers.provider.AuthController
+import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
 import com.saltedge.provider.demo.model.ScaConnectionEntity
 import com.saltedge.provider.demo.model.ScaConnectionsRepository
@@ -38,6 +39,9 @@ class ConnectionsService {
             }
             userId != SCA_USER_ID -> {
                 onFailAuthentication(data.connectionId, data.returnUrl, "Invalid connect query [${data.connectQuery}]")
+            }
+            connectionsRepository.findFirstByConnectionId(data.connectionId) != null -> {
+                throw BadRequest.WrongRequestFormat(errorMessage = "Not unique values in query")
             }
             else -> {
                 val authenticationUrl = AuthController.authenticationPageUrl(

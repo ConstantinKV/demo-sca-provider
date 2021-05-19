@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ScaConnectionsRepository : JpaRepository<ScaConnectionEntity, Long> {
     fun findByRevokedIsFalse(): List<ScaConnectionEntity>
+    fun findFirstByConnectionId(connectionId: String?): ScaConnectionEntity?
     fun findFirstByConnectionIdAndRevokedIsFalse(connectionId: String?): ScaConnectionEntity?
 }
