@@ -50,17 +50,14 @@ class ConnectionsService {
                     connectQuery = data.connectQuery ?: ""
                 )
                 createScaConnectionEntity(data, authRsaPublicKeyPem, userId)
-                CreateConnectionResponseData(authenticationUrl = authenticationUrl)
+                CreateConnectionResponseData(authenticationUrl)
             }
         }
     }
 
     private fun onFailAuthentication(connectionId: String, returnUrl: String, message: String): CreateConnectionResponseData {
         callbackService.sendFailAuthenticationCallback(scaConnectionId = connectionId, failMessage = message)
-        return CreateConnectionResponseData(authenticationUrl = errorAuthRedirect(
-            returnUrl = returnUrl,
-            error = "Unauthorized request"
-        ))
+        return CreateConnectionResponseData(errorAuthRedirect(returnUrl = returnUrl, error = "Unauthorized request"))
     }
 
     fun authorizeConnection(scaConnectionId: String, connectQuery: String): String {

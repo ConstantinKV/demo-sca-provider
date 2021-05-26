@@ -11,5 +11,5 @@ data class FailAuthenticationRequest(
 )
 
 data class FailAuthenticationRequestData(
-    @JsonProperty("fail_message") var failMessage: String
+    @JsonProperty("fail_message") var fail_message: String
 )
