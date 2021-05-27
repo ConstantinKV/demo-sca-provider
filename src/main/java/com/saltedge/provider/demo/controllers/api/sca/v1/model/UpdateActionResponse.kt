@@ -10,5 +10,5 @@ data class UpdateActionResponse(
 )
 
 data class UpdateActionResponseData(
-    @JsonProperty("close_action") var closeAction: Boolean
+    @JsonProperty("close_action") var close_action: Boolean
 )

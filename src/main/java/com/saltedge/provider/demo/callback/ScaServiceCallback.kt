@@ -80,9 +80,9 @@ class ScaServiceCallback {
         val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
         val request = CreateActionRequest(
             data = CreateActionRequestData(
-                actionId = action.id.toString(),
-                userId = SCA_USER_ID,
-                expiresAt = authorizationExpiresAt,
+                action_id = action.id.toString(),
+                user_id = SCA_USER_ID,
+                expires_at = authorizationExpiresAt,
                 authorizations = authorizations
             ),
             exp = requestExpiresAt.epochSecond.toInt()
@@ -112,10 +112,10 @@ class ScaServiceCallback {
         val authorizationData = AuthorizationData(
             title = "Create payment",
             description = DescriptionData(text = "TPP is requesting your authorization to access account information data from Demo Bank"),
-            extra = ExtraData(actionDate = "Today", device = "Google Chrome", location = "Munich, Germany", ip = "127.0.0.0"),
-            authorizationCode = authorizationCode,
-            createdAt = Instant.now().toString(),
-            expiresAt = authorizationExpiresAt
+            extra = ExtraData(action_date = "Today", device = "Google Chrome", location = "Munich, Germany", ip = "127.0.0.0"),
+            authorization_code = authorizationCode,
+            created_at = Instant.now().toString(),
+            expires_at = authorizationExpiresAt
         )
         return authorizationData.toJson() ?: ""
     }
@@ -132,7 +132,7 @@ class ScaServiceCallback {
         SecureRandom().nextBytes(iv)
 
         return CreateActionAuthorization(
-            connectionId = connection.connectionId,
+            connection_id = connection.connectionId,
             key = Base64.getEncoder().encodeToString(CryptoTools.encryptRsa(key, publicKey)),
             iv = Base64.getEncoder().encodeToString(CryptoTools.encryptRsa(iv, publicKey)),
             data = Base64.getEncoder().encodeToString(CryptoTools.encryptAes(data, key, iv))

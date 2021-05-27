@@ -13,7 +13,8 @@
 </head>
 <body>
   <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo">Demo SCA Provider</a>
+    <div class="nav-wrapper">
+      <a id="logo-container" href="/" class="brand-logo">Demo Provider</a>
       <ul class="right hide-on-med-and-down">
         <li><a href="/actions">Actions</a></li>
       </ul>

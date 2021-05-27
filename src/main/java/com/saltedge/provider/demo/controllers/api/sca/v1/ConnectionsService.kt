@@ -9,7 +9,7 @@ import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY_PREFIX
 import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionRequestData
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionResponseData
-import com.saltedge.provider.demo.controllers.provider.AuthController
+import com.saltedge.provider.demo.controllers.provider.ScaAuthController
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
 import com.saltedge.provider.demo.model.ScaConnectionEntity
@@ -35,19 +35,28 @@ class ConnectionsService {
         val userId = data.connectQuery?.replace(SCA_CONNECT_QUERY_PREFIX, "")
         return when {
             userId == null -> {
-                onFailAuthentication(data.connectionId, data.returnUrl, "Empty connect query")
+                val authenticationUrl = ScaAuthController.authenticationPageUrl(
+                    applicationUrl = demoApplicationProperties.applicationUrl,
+                    connectionId = data.connectionId
+                )
+                createScaConnectionEntity(data, authRsaPublicKeyPem, userId)
+                CreateConnectionResponseData(authenticationUrl)
             }
             userId != SCA_USER_ID -> {
-                onFailAuthentication(data.connectionId, data.returnUrl, "Invalid connect query [${data.connectQuery}]")
+                onFailAuthentication(
+                    connectionId = data.connectionId,
+                    returnUrl = data.returnUrl,
+                    message = "Invalid connect query [${data.connectQuery}]"
+                )
             }
             connectionsRepository.findFirstByConnectionId(data.connectionId) != null -> {
                 throw BadRequest.WrongRequestFormat(errorMessage = "Not unique values in query")
             }
             else -> {
-                val authenticationUrl = AuthController.authenticationPageUrl(
+                val authenticationUrl = ScaAuthController.authenticationPageUrl(
                     applicationUrl = demoApplicationProperties.applicationUrl,
                     connectionId = data.connectionId,
-                    connectQuery = data.connectQuery ?: ""
+                    connectQuery = data.connectQuery
                 )
                 createScaConnectionEntity(data, authRsaPublicKeyPem, userId)
                 CreateConnectionResponseData(authenticationUrl)
@@ -60,15 +69,16 @@ class ConnectionsService {
         return CreateConnectionResponseData(errorAuthRedirect(returnUrl = returnUrl, error = "Unauthorized request"))
     }
 
-    fun authorizeConnection(scaConnectionId: String, connectQuery: String): String {
-        val userId = connectQuery.replace(SCA_CONNECT_QUERY_PREFIX, "")
+    fun authorizeConnection(scaConnectionId: String, userId: String): String {
         val connection = connectionsRepository.findFirstByConnectionIdAndRevokedIsFalse(scaConnectionId)
         return if (userId != SCA_USER_ID || connection == null) {
             callbackService.sendFailAuthenticationCallback(
                 scaConnectionId = scaConnectionId,
                 failMessage = "Unauthorized request"
             )
-            errorAuthRedirect(returnUrl = connection?.returnUrl ?: "", error = "Unauthorized request")
+            val result = errorAuthRedirect(returnUrl = connection?.returnUrl ?: "", error = "Unauthorized request")
+            println("errorAuthRedirect to $result [Connection: $scaConnectionId, User: $userId]")
+            result
         } else {
             val accessToken = UUID.randomUUID().toString()
             connection.accessToken = accessToken
@@ -93,19 +103,18 @@ class ConnectionsService {
     }
 
     private fun errorAuthRedirect(returnUrl: String, error: String): String {
-        return UriComponentsBuilder
-            .fromUriString(returnUrl)
+        return UriComponentsBuilder.fromUriString(returnUrl)
             .queryParam("error_class", "AUTHENTICATION_FAILED")
             .queryParam("error_message", URLEncoder.encode(error, StandardCharsets.UTF_8.toString()))
             .build().toUriString()
     }
 
-    private fun createScaConnectionEntity(data: CreateConnectionRequestData, authRsaPublicKeyPem: String, userId: String) {
+    private fun createScaConnectionEntity(data: CreateConnectionRequestData, authRsaPublicKeyPem: String, userId: String?) {
         val entity = ScaConnectionEntity()
         entity.connectionId = data.connectionId
         entity.rsaPublicKey = authRsaPublicKeyPem
         entity.returnUrl = data.returnUrl
-        entity.userId = userId
+        userId?.let { entity.userId = it }
         connectionsRepository.save(entity)
     }
 }

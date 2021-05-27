@@ -27,7 +27,7 @@ class ProviderActionsController {
 
     @GetMapping("/actions")
     fun showActions(): ModelAndView {
-        val connections = connectionsRepository.findByRevokedIsFalse()
+        val connections = connectionsRepository.findByRevokedIsFalse().filter { it.isAuthorized }
         val actions = actionsRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
         return ModelAndView("actions")
             .addObject("actions", actions)
@@ -36,7 +36,7 @@ class ProviderActionsController {
 
     @GetMapping("/actions/create")
     fun createNewAction(): ModelAndView {
-        val connections = connectionsRepository.findByRevokedIsFalse()
+        val connections = connectionsRepository.findByRevokedIsFalse().filter { it.isAuthorized }
         if (connections.isNotEmpty()) {
             val action = ScaActionEntity()
             action.code = UUID.randomUUID().toString()

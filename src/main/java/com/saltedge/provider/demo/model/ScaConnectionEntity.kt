@@ -40,4 +40,7 @@ class ScaConnectionEntity {
 
     @Column
     var userId: String = ""
+
+    val isAuthorized: Boolean
+        get() = accessToken.isNotEmpty() && rsaPublicKey.isNotEmpty()
 }

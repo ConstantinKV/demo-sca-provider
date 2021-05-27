@@ -12,6 +12,8 @@ import java.security.PublicKey
 
 const val APP_LINK_PREFIX_CONNECT = "authenticator://saltedge.com/connect?configuration="
 const val SCA_USER_ID = "123"
+const val SCA_USER_NAME = "username"
+const val SCA_USER_PASSWORD = "secret"
 const val SCA_CONNECT_QUERY_PREFIX = "query-"
 const val SCA_CONNECT_QUERY = "$SCA_CONNECT_QUERY_PREFIX$SCA_USER_ID"
 

@@ -32,7 +32,7 @@ class ActionsController : BaseController() {
         val action = repository.findById(actionId).orElse(null) ?: throw NotFound.ActionNotFound()
         action.status = "confirmed"
         repository.save(action)
-        return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(closeAction = true)), HttpStatus.OK)
+        return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(close_action = true)), HttpStatus.OK)
     }
 
     @PutMapping("/{action_id}/deny")
@@ -43,6 +43,6 @@ class ActionsController : BaseController() {
         val action = repository.findById(actionId).orElse(null) ?: throw NotFound.ActionNotFound()
         action.status = "denied"
         repository.save(action)
-        return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(closeAction = true)), HttpStatus.OK)
+        return ResponseEntity(UpdateActionResponse(data = UpdateActionResponseData(close_action = true)), HttpStatus.OK)
     }
 }
