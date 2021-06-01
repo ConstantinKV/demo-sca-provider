@@ -34,17 +34,22 @@ class ProviderActionsController {
             .addObject("disabled", if (connections.isEmpty()) "disabled" else "")
     }
 
-    @GetMapping("/actions/create")
-    fun createNewAction(): ModelAndView {
+    @GetMapping("/actions/create/{type}")
+    fun createNewAction(
+        @PathVariable("type") type: String
+    ): ModelAndView {
         val connections = connectionsRepository.findByRevokedIsFalse().filter { it.isAuthorized }
-        if (connections.isNotEmpty()) {
-            val action = ScaActionEntity()
-            action.code = UUID.randomUUID().toString()
-            action.status = "pending"
-            actionsRepository.save(action)
+        if (connections.isEmpty()) return ModelAndView("redirect:/actions")
 
-            callbackService.sendActionCreateCallback(action, connections)
+        val action = ScaActionEntity().apply {
+            code = UUID.randomUUID().toString()
+            status = "pending"
+            descriptionType = type
         }
+        if (type != "html" && type != "json") action.descriptionType = "text"
+
+        actionsRepository.save(action)
+        callbackService.sendActionCreateCallback(action, connections)
         return ModelAndView("redirect:/actions")
     }
 

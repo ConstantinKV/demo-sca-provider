@@ -23,9 +23,11 @@
 
   <div class="container">
     <br><br>
-    <h1 class="header center brown-text">Actions</h1>
+    <h2 class="header center brown-text">Actions to authorize</h2>
     <div class="row center">
-      <a href="/actions/create" id="create-button" class="btn-large waves-effect waves-light red ${disabled}">Create new action</a>
+      <a href="/actions/create/text" id="create-button" class="btn-large waves-effect waves-light blue ${disabled}">Create new TEXT action</a>
+      <a href="/actions/create/html" id="create-button" class="btn-large waves-effect waves-light yellow blue-text ${disabled}">Create new HTML action</a>
+      <a href="/actions/create/json" id="create-button" class="btn-large waves-effect waves-light red ${disabled}">Create new JSON action</a>
     </div>
 
     <div class="row center">
@@ -34,8 +36,10 @@
           <thead>
             <tr>
                 <th>ID</th>
-                <th>Code</th>
+                <th>Authorization Code</th>
+                <th>Content type</th>
                 <th>Status</th>
+                <th>Created At</th>
                 <th>Close</th>
             </tr>
           </thead>
@@ -45,10 +49,14 @@
             <tr>
               <td>${item.id}</td>
               <td>${item.code}</td>
+              <td class="center">${item.descriptionType!"text"}</td>
               <td>${item.status}</td>
+              <td>${item.createdAtDescription}</td>
               <td>
               <#if item.closed>
-                <i class="small material-icons">remove_circle</i>
+                <b>closed</b>
+              <#elseif item.expired>
+                <b>expired</b>
               <#else>
                 <a href="/actions/${item.id}/close"><i class="small material-icons red-text">clear</i></a>
               </#if>

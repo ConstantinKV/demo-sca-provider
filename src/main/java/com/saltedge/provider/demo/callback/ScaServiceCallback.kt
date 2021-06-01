@@ -19,10 +19,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.*
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.UnknownHttpStatusCodeException
 import java.security.SecureRandom
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -74,16 +71,15 @@ class ScaServiceCallback {
 
     @Async
     fun sendActionCreateCallback(action: ScaActionEntity, connections: List<ScaConnectionEntity>) {
-        val authorizations = connections.map {
-            createEncryptedEntity(data = createAuthorizationData(action.code), connection = it)
-        }
+        val authorization = createAuthorizationData(action)
+        val encAuthorizations = connections.map { createEncryptedEntity(data = authorization, connection = it) }
         val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
         val request = CreateActionRequest(
             data = CreateActionRequestData(
                 action_id = action.id.toString(),
                 user_id = SCA_USER_ID,
-                expires_at = authorizationExpiresAt,
-                authorizations = authorizations
+                expires_at = action.expiresAt.toString(),
+                authorizations = encAuthorizations
             ),
             exp = requestExpiresAt.epochSecond.toInt()
         )
@@ -108,14 +104,29 @@ class ScaServiceCallback {
         }
     }
 
-    private fun createAuthorizationData(authorizationCode: String): String {
+    private fun createAuthorizationData(action: ScaActionEntity): String {
+        val description = when (action.descriptionType) {
+            "html" -> DescriptionData(html = "<body><p><b>TPP</b> is requesting your authorization to access account information data from <b>Demo Bank</b></p></body>")
+            "json" -> {
+                DescriptionData(payment = DescriptionPaymentData(
+                    payee = "TPP",
+                    amount = "100.0",
+                    account = "MD24 AG00 0225 1000 1310 4168",
+                    payment_date = action.createdAtDescription,
+                    reference = "X1",
+                    fee = "No fee",
+                    exchange_rate = "1.0"
+                ))
+            }
+            else -> DescriptionData(text = "TPP is requesting your authorization to access account information data from Demo Bank")
+        }
+        description.extra = ExtraData(action_date = "Today", device = "Google Chrome", location = "Munich, Germany", ip = "127.0.0.0")
         val authorizationData = AuthorizationData(
-            title = "Create payment",
-            description = DescriptionData(text = "TPP is requesting your authorization to access account information data from Demo Bank"),
-            extra = ExtraData(action_date = "Today", device = "Google Chrome", location = "Munich, Germany", ip = "127.0.0.0"),
-            authorization_code = authorizationCode,
-            created_at = Instant.now().toString(),
-            expires_at = authorizationExpiresAt
+            title = "Access account information",
+            description = description,
+            authorization_code = action.code,
+            created_at = action.createdAtValue.toString(),
+            expires_at = action.expiresAt.toString()
         )
         return authorizationData.toJson() ?: ""
     }
@@ -138,7 +149,4 @@ class ScaServiceCallback {
             data = Base64.getEncoder().encodeToString(CryptoTools.encryptAes(data, key, iv))
         )
     }
-
-    private val authorizationExpiresAt: String
-        get() = Instant.now().plus(10, ChronoUnit.MINUTES).toString()
 }
