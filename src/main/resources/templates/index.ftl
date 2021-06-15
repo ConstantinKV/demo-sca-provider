@@ -40,7 +40,14 @@
               </div>
             </a>
           </div>
-
+          <div class="col s12 m4">
+            <div class="icon-block center">
+              <img src="/connections/qr" width="128" height="128" alt="Add Authenticator">
+              <h5 class="center black-text">Add Salt Edge Authenticator</h5>
+            </div>
+          </div>
+        </div>
+        <div class="row">
           <div class="col s12 m4">
             <a class="match-parent" href="/actions">
               <div class="icon-block">
@@ -49,13 +56,13 @@
               </div>
             </a>
           </div>
-        </div>
-        <div class="row">
           <div class="col s12 m4">
-            <div class="icon-block center">
-              <img src="/connections/qr" width="128" height="128" alt="Add Salt Edge Authenticator">
-              <h5 class="center black-text">Add Salt Edge Authenticator</h5>
-            </div>
+            <a class="match-parent" href="/instant_action">
+              <div class="icon-block">
+                <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
+                <h5 class="center black-text">Instant Action test</h5>
+              </div>
+            </a>
           </div>
         </div>
       </div>

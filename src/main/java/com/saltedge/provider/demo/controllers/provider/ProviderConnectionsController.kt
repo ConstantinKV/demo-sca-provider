@@ -3,6 +3,7 @@
  */
 package com.saltedge.provider.demo.controllers.provider
 
+import com.saltedge.provider.demo.callback.ScaServiceCallback
 import com.saltedge.provider.demo.config.APP_LINK_PREFIX_CONNECT
 import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY
@@ -25,6 +26,8 @@ class ProviderConnectionsController {
     lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
     lateinit var repository: ScaConnectionsRepository
+    @Autowired
+    lateinit var callbackService: ScaServiceCallback
 
     @GetMapping("/connections")
     fun showConnections(): ModelAndView {
@@ -52,6 +55,7 @@ class ProviderConnectionsController {
         repository.findById(connectionId).orElse(null)?.let {
             it.revoked = true
             repository.save(it)
+            callbackService.sendRevokeConnectionCallback(it.connectionId)
         }
         return ModelAndView("redirect:/connections")
     }

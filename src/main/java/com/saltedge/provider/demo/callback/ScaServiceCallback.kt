@@ -9,6 +9,8 @@ import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.model.ScaActionEntity
 import com.saltedge.provider.demo.model.ScaConnectionEntity
 import com.saltedge.provider.demo.tools.JsonTools
+import com.saltedge.provider.demo.tools.createAuthorizationData
+import com.saltedge.provider.demo.tools.createEncryptedEntity
 import com.saltedge.provider.demo.tools.security.CryptoTools
 import com.saltedge.provider.demo.tools.security.JwsTools
 import com.saltedge.provider.demo.tools.security.KeyTools
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.http.*
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -37,7 +40,19 @@ class ScaServiceCallback {
 
     @Bean
     @Qualifier("ScaServiceCallbackRestTemplateBean")
-    fun createScaRest(): RestTemplate = RestTemplate()
+    fun createScaRest(): RestTemplate {
+        val result = RestTemplate()
+        result.messageConverters.add(0, mappingJacksonHttpMessageConverter());
+        return result
+    }
+
+    @Bean
+    fun mappingJacksonHttpMessageConverter(): MappingJackson2HttpMessageConverter {
+        val messageConverter = MappingJackson2HttpMessageConverter()
+        messageConverter.setPrettyPrint(false)
+        messageConverter.objectMapper = mapper
+        return messageConverter
+    }
 
     @Async
     fun sendSuccessAuthenticationCallback(scaConnectionId: String, accessToken: String, rsaPublicKey: String) {
@@ -53,7 +68,7 @@ class ScaServiceCallback {
         val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/success_authentication"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendSuccessAuthenticationCallback:statusCode: ${result?.statusCode}")
+        println("sendSuccessAuthenticationCallback [${Instant.now()}]:statusCode: ${result?.statusCode}")
     }
 
     @Async
@@ -63,10 +78,20 @@ class ScaServiceCallback {
             data = FailAuthenticationRequestData(fail_message = failMessage),
             exp = requestExpiresAt.epochSecond.toInt()
         )
-        val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/fail_authentication"
+        val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/fail_authentication"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendFailAuthenticationCallback:statusCode: ${result?.statusCode}")
+        println("sendFailAuthenticationCallback [${Instant.now()}]:statusCode: ${result?.statusCode}")
+    }
+
+    @Async
+    fun sendRevokeConnectionCallback(scaConnectionId: String) {
+        val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
+        val request = RevokeConnectionRequest(exp = requestExpiresAt.epochSecond.toInt())
+        val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/revoke"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
+        val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
+        println("sendRevokeConnectionCallback [${Instant.now()}]:result: " + result?.body?.toString())
     }
 
     @Async
@@ -86,7 +111,7 @@ class ScaServiceCallback {
         val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/actions"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
-        println("sendActionCreateCallback:result: " + result?.body?.toString())
+        println("sendActionCreateCallback [${Instant.now()}]:result: " + result?.body?.toString())
     }
 
     private fun doCallbackRequest(method: HttpMethod, url: String, signature: String, request: Any): ResponseEntity<Any>? {
@@ -104,49 +129,5 @@ class ScaServiceCallback {
         }
     }
 
-    private fun createAuthorizationData(action: ScaActionEntity): String {
-        val description = when (action.descriptionType) {
-            "html" -> DescriptionData(html = "<body><p><b>TPP</b> is requesting your authorization to access account information data from <b>Demo Bank</b></p></body>")
-            "json" -> {
-                DescriptionData(payment = DescriptionPaymentData(
-                    payee = "TPP",
-                    amount = "100.0",
-                    account = "MD24 AG00 0225 1000 1310 4168",
-                    payment_date = action.createdAtDescription,
-                    reference = "X1",
-                    fee = "No fee",
-                    exchange_rate = "1.0"
-                ))
-            }
-            else -> DescriptionData(text = "TPP is requesting your authorization to access account information data from Demo Bank")
-        }
-        description.extra = ExtraData(action_date = "Today", device = "Google Chrome", location = "Munich, Germany", ip = "127.0.0.0")
-        val authorizationData = AuthorizationData(
-            title = "Access account information",
-            description = description,
-            authorization_code = action.code,
-            created_at = action.createdAtValue.toString(),
-            expires_at = action.expiresAt.toString()
-        )
-        return authorizationData.toJson() ?: ""
-    }
 
-    /**
-     * AES-256-CBC
-     */
-    private fun createEncryptedEntity(data: String, connection: ScaConnectionEntity): CreateActionAuthorization {
-        val publicKey = KeyTools.convertPemToPublicKey(connection.rsaPublicKey, KeyTools.Algorithm.RSA)
-
-        val key = ByteArray(32)
-        SecureRandom().nextBytes(key)
-        val iv = ByteArray(16)
-        SecureRandom().nextBytes(iv)
-
-        return CreateActionAuthorization(
-            connection_id = connection.connectionId,
-            key = Base64.getEncoder().encodeToString(CryptoTools.encryptRsa(key, publicKey)),
-            iv = Base64.getEncoder().encodeToString(CryptoTools.encryptRsa(iv, publicKey)),
-            data = Base64.getEncoder().encodeToString(CryptoTools.encryptAes(data, key, iv))
-        )
-    }
 }

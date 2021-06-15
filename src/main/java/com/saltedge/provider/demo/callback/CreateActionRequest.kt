@@ -14,10 +14,10 @@ data class CreateActionRequestData(
     @JsonProperty("action_id") var action_id: String,
     @JsonProperty("user_id") var user_id: String,
     @JsonProperty("expires_at") var expires_at: String,
-    @JsonProperty("authorizations") var authorizations: List<CreateActionAuthorization>
+    @JsonProperty("authorizations") var authorizations: List<ActionAuthorization>
 )
 
-data class CreateActionAuthorization(
+data class ActionAuthorization(
     @JsonProperty("connection_id") var connection_id: String,
     @JsonProperty("iv") var iv: String,
     @JsonProperty("key") var key: String,
