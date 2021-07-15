@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Settings</title>
+  <title>Demo SCA Service</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body>
   <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper">
-      <a id="logo-container" href="/" class="brand-logo center">Demo Provider</a>
+      <a id="logo-container" href="/" class="brand-logo center" style="padding-left: 12px !important;">Demo Provider Settings</a>
     </div>
   </nav>
 

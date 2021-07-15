@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Add Salt Edge Authenticator</title>
+  <title>Demo SCA Service</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -14,9 +14,10 @@
 <body>
   <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper">
-      <a id="logo-container" href="/" class="brand-logo">Demo Provider</a>
+      <a id="logo-container" href="/" class="brand-logo" style="padding-left: 12px !important;">Demo Provider</a>
       <ul class="right hide-on-med-and-down">
-        <li><a href="/connections">SCA Connections</a></li>
+        <li><a href="/connections">Connections</a></li>
+        <li><a href="/consents">Consents</a></li>
       </ul>
     </div>
   </nav>

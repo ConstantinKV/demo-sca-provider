@@ -82,6 +82,7 @@ class ConnectionsService {
         } else {
             val accessToken = UUID.randomUUID().toString()
             connection.accessToken = accessToken
+            connection.userId = userId
             connectionsRepository.save(connection)
             callbackService.sendSuccessAuthenticationCallback(
                 scaConnectionId = scaConnectionId,

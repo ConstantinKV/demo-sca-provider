@@ -8,13 +8,9 @@ import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_USER_ID
 import com.saltedge.provider.demo.model.ScaActionEntity
 import com.saltedge.provider.demo.model.ScaConnectionEntity
-import com.saltedge.provider.demo.tools.JsonTools
-import com.saltedge.provider.demo.tools.createAuthorizationData
-import com.saltedge.provider.demo.tools.createEncryptedEntity
-import com.saltedge.provider.demo.tools.security.CryptoTools
+import com.saltedge.provider.demo.model.ScaConsentEntity
+import com.saltedge.provider.demo.tools.*
 import com.saltedge.provider.demo.tools.security.JwsTools
-import com.saltedge.provider.demo.tools.security.KeyTools
-import com.saltedge.provider.demo.tools.toJson
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -23,10 +19,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
-import java.security.SecureRandom
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 @Service
 class ScaServiceCallback {
@@ -97,7 +91,7 @@ class ScaServiceCallback {
     @Async
     fun sendActionCreateCallback(action: ScaActionEntity, connections: List<ScaConnectionEntity>) {
         val authorization = createAuthorizationData(action)
-        val encAuthorizations = connections.map { createEncryptedEntity(data = authorization, connection = it) }
+        val encAuthorizations = connections.map { createEncryptedAction(data = authorization, connection = it) }
         val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
         val request = CreateActionRequest(
             data = CreateActionRequestData(
@@ -112,6 +106,37 @@ class ScaServiceCallback {
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
         println("sendActionCreateCallback [${Instant.now()}]:result: " + result?.body?.toString())
+    }
+
+    @Async
+    fun sendConsentCreateCallback(consent: ScaConsentEntity, connections: List<ScaConnectionEntity>) {
+        val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
+
+        val consentData = createConsentData(consent)
+        val encConsents = connections.map { createEncryptedEncryptedConsent(data = consentData, expiresAt = consent.expiresAt ?: requestExpiresAt, connection = it) }
+
+        val request = CreateConsentRequest(
+            data = CreateConsentRequestData(
+                consent_id = consent.id.toString(),
+                user_id = consent.userId,
+                consents = encConsents
+            ),
+            exp = requestExpiresAt.epochSecond.toInt()
+        )
+        val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/consents"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
+        val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
+        println("sendConsentCreateCallback [${Instant.now()}]:result: " + result?.body?.toString())
+    }
+
+    @Async
+    fun sendRevokeConsentCallback(scaConsentId: String) {
+        val requestExpiresAt = Instant.now().plus(2, ChronoUnit.MINUTES)
+        val request = RevokeConnectionRequest(exp = requestExpiresAt.epochSecond.toInt())
+        val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/consents/$scaConsentId/revoke"
+        val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
+        val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
+        println("sendRevokeConsentCallback [${Instant.now()}]:result: " + result?.body?.toString())
     }
 
     private fun doCallbackRequest(method: HttpMethod, url: String, signature: String, request: Any): ResponseEntity<Any>? {

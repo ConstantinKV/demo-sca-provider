@@ -64,6 +64,14 @@
               </div>
             </a>
           </div>
+          <div class="col s12 m4">
+            <a class="match-parent" href="/consents">
+              <div class="icon-block">
+                <h2 class="center light-blue-text"><i class="material-icons">assignment_turned_in</i></h2>
+                <h5 class="center black-text">Consents</h5>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
       <br><br>
