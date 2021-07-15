@@ -6,8 +6,8 @@ package com.saltedge.provider.demo.controllers.api.sca.v1
 import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionRequest
 import com.saltedge.provider.demo.controllers.api.sca.v1.model.CreateConnectionResponse
-import com.saltedge.provider.demo.controllers.api.sca.v1.model.UpdateConnectionRequest
-import com.saltedge.provider.demo.controllers.api.sca.v1.model.UpdateConnectionResponse
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.EmptyRequest
+import com.saltedge.provider.demo.controllers.api.sca.v1.model.EmptyResponse
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
 import com.saltedge.provider.demo.tools.security.CryptoTools
@@ -48,11 +48,11 @@ class ConnectionsController : BaseController() {
     @PutMapping("/{connection_id}/revoke")
     fun revoke(
         @PathVariable("connection_id") connectionId: String,
-        @RequestBody request: UpdateConnectionRequest
-    ): ResponseEntity<UpdateConnectionResponse> {
+        @RequestBody request: EmptyRequest
+    ): ResponseEntity<EmptyResponse> {
         try {
             connectionsService.revokeConnection(connectionId)
-            return ResponseEntity(UpdateConnectionResponse(), HttpStatus.OK)
+            return ResponseEntity(EmptyResponse(), HttpStatus.OK)
         } catch (e: Exception) {
             println(e.message)
             e.printStackTrace()

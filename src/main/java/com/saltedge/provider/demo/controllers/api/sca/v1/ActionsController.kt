@@ -10,7 +10,7 @@ import com.saltedge.provider.demo.errors.NotFound
 import com.saltedge.provider.demo.model.ScaActionsRepository
 import com.saltedge.provider.demo.model.ScaConnectionsRepository
 import com.saltedge.provider.demo.tools.createAuthorizationData
-import com.saltedge.provider.demo.tools.createEncryptedEntity
+import com.saltedge.provider.demo.tools.createEncryptedAction
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -39,7 +39,7 @@ class ActionsController : BaseController() {
         val connection = connectionsRepository.findFirstByConnectionId(connectionIdValue)    ?: throw NotFound.ConnectionNotFound()
 
         val authorization = createAuthorizationData(action)
-        val encAuthorization = createEncryptedEntity(data = authorization, connection = connection)
+        val encAuthorization = createEncryptedAction(data = authorization, connection = connection)
 
         return ResponseEntity(CreateAuthorizationInfoResponse(data = CreateAuthorizationInfoResponseData(
             action_id = actionId.toString(),

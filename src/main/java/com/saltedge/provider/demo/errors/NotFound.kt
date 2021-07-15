@@ -24,4 +24,5 @@ abstract class NotFound(errorMessage: String) : RuntimeException(), HttpErrorPar
     class UserNotFound : NotFound("User Not Found.")
     class ConnectionNotFound : NotFound("Connection Not Found.")
     class ActionNotFound : NotFound("Action Not Found.")
+    class ConsentNotFound : NotFound("Consent Not Found.")
 }

@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Add Salt Edge Authenticator</title>
+  <title>Demo SCA Service</title>
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -14,9 +14,10 @@
 <body>
   <nav class="light-blue lighten-1" role="navigation">
     <div class="nav-wrapper">
-      <a id="logo-container" href="/" class="brand-logo">Demo Provider</a>
+      <a id="logo-container" href="/" class="brand-logo" style="padding-left: 12px !important;">Demo Provider</a>
       <ul class="right hide-on-med-and-down">
         <li><a href="/actions">Actions</a></li>
+        <li><a href="/consents">Consents</a></li>
       </ul>
     </div>
   </nav>
@@ -33,10 +34,11 @@
         <table class="striped">
           <thead>
             <tr>
-                <th>ID</th>
-                <th>Connection ID</th>
-                <th>Access Token</th>
-                <th>Revoke</th>
+              <th>ID</th>
+              <th class="center">Connection ID</th>
+              <th class="center">Access Token</th>
+              <th class="center">Revoke</th>
+              <th class="center">Add consent</th>
             </tr>
           </thead>
 
@@ -46,14 +48,21 @@
               <td>${item.id}</td>
               <td class="center">${item.connectionId}</td>
               <td>${item.accessToken}</td>
-              <td>
-              <#if item.unauthorized>
-                <b>unauthorized</b>
-              <#elseif item.revoked>
-                <b>revoked</b>
-              <#else>
-                <a href="/connections/${item.id}/revoke"><i class="small material-icons red-text">clear</i></a>
-              </#if>
+              <td class="center">
+                <#if item.unauthorized>
+                  <b>unauthorized</b>
+                <#elseif item.revoked>
+                  <b>revoked</b>
+                <#else>
+                  <a href="/connections/${item.id}/revoke"><i class="small material-icons red-text">clear</i></a>
+                </#if>
+              </td>
+              <td class="center">
+                <#if item.revoked || item.unauthorized>
+                  <span></span>
+                <#else>
+                  <a href="/consents/create?user_id=${item.userId}"><i class="small material-icons blue-text">add</i></a>
+                </#if>
               </td>
             </tr>
             </#items>
