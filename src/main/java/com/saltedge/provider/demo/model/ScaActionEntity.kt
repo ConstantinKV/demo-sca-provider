@@ -35,8 +35,11 @@ class ScaActionEntity {
     @Column
     var descriptionType: String = ""
 
+    val isActive: Boolean
+        get() = listOf("pending", "confirm_processing", "deny_processing").contains(status)
+
     val isClosed: Boolean
-        get() = "pending" != status
+        get() = !isActive
 
     val createdAtValue: Instant
         get() = createdAt ?: Instant.ofEpochSecond(0)

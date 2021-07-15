@@ -40,7 +40,8 @@ class ProviderInstantActionController {
         @CookieValue(value = COOKIE_AUTHENTICATION_ACTION, defaultValue = "") savedActionId: String,
         response: HttpServletResponse
     ): ModelAndView {
-        val action = getOrCreateAction(savedActionId)
+        var action = getOrCreateAction(savedActionId)
+        if (action.isClosed) action = createAction()
         val actionId = action.id?.toString() ?: ""
         if (savedActionId != actionId) saveActionCookie(COOKIE_AUTHENTICATION_ACTION, actionId, response)
 
@@ -91,14 +92,17 @@ class ProviderInstantActionController {
 
     private fun getOrCreateAction(actionId: String): ScaActionEntity {
         var action = actionId.toLongOrNull()?.let { actionsRepository.findByIdOrNull(it) }
-        if (action == null) {
-            action = ScaActionEntity().apply {
-                code = UUID.randomUUID().toString()
-                status = "pending"
-                descriptionType = "text"
-            }
-            actionsRepository.save(action)
+        if (action == null) action = createAction()
+        return action
+    }
+
+    private fun createAction(): ScaActionEntity {
+        val action = ScaActionEntity().apply {
+            code = UUID.randomUUID().toString()
+            status = "pending"
+            descriptionType = "text"
         }
+        actionsRepository.save(action)
         return action
     }
 }

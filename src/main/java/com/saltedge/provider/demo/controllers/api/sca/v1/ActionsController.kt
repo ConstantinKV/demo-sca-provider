@@ -26,7 +26,7 @@ class ActionsController : BaseController() {
     @Autowired
     lateinit var actionsRepository: ScaActionsRepository
     @Autowired
-    lateinit var connectionsService: ScaConnectionsRepository
+    lateinit var connectionsRepository: ScaConnectionsRepository
 
     @Throws(Exception::class)
     @PostMapping("/{action_id}")
@@ -35,8 +35,8 @@ class ActionsController : BaseController() {
         @RequestBody request: CreateAuthorizationInfoRequest
     ): ResponseEntity<CreateAuthorizationInfoResponse> {
         val action = actionsRepository.findById(actionId).orElse(null) ?: throw NotFound.ActionNotFound()
-        val connectionIdValue = request.data.connectionId.toLongOrNull() ?: throw BadRequest.WrongRequestFormat()
-        val connection = connectionsService.findById(connectionIdValue).orElse(null) ?: throw NotFound.ConnectionNotFound()
+        val connectionIdValue = request.data.connectionId ?: throw BadRequest.WrongRequestFormat()
+        val connection = connectionsRepository.findFirstByConnectionId(connectionIdValue)    ?: throw NotFound.ConnectionNotFound()
 
         val authorization = createAuthorizationData(action)
         val encAuthorization = createEncryptedEntity(data = authorization, connection = connection)
