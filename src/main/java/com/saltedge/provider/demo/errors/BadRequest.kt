@@ -26,4 +26,5 @@ abstract class BadRequest(errorMessage: String) : RuntimeException(), HttpErrorP
     class SignatureExpired : BadRequest("Expired Signature.")
     class InvalidSignature(errorMessage: String = "Invalid Signature.") : BadRequest(errorMessage)
     class ActionExpired : BadRequest("Action is expired and cannot be done.")
+    class ActionClosed : BadRequest("Action is closed and cannot be done.")
 }

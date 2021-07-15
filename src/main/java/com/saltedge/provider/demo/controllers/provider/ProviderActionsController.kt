@@ -27,24 +27,29 @@ class ProviderActionsController {
 
     @GetMapping("/actions")
     fun showActions(): ModelAndView {
-        val connections = connectionsRepository.findByRevokedIsFalse()
+        val connections = connectionsRepository.findByRevokedIsFalse().filter { it.isAuthorized }
         val actions = actionsRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
         return ModelAndView("actions")
             .addObject("actions", actions)
             .addObject("disabled", if (connections.isEmpty()) "disabled" else "")
     }
 
-    @GetMapping("/actions/create")
-    fun createNewAction(): ModelAndView {
-        val connections = connectionsRepository.findByRevokedIsFalse()
-        if (connections.isNotEmpty()) {
-            val action = ScaActionEntity()
-            action.code = UUID.randomUUID().toString()
-            action.status = "pending"
-            actionsRepository.save(action)
+    @GetMapping("/actions/create/{type}")
+    fun createNewAction(
+        @PathVariable("type") type: String
+    ): ModelAndView {
+        val connections = connectionsRepository.findByRevokedIsFalse().filter { it.isAuthorized }
+        if (connections.isEmpty()) return ModelAndView("redirect:/actions")
 
-            callbackService.sendActionCreateCallback(action, connections)
+        val action = ScaActionEntity().apply {
+            code = UUID.randomUUID().toString()
+            status = "pending"
+            descriptionType = type
         }
+        if (type != "html" && type != "json") action.descriptionType = "text"
+
+        actionsRepository.save(action)
+        callbackService.sendActionCreateCallback(action, connections)
         return ModelAndView("redirect:/actions")
     }
 

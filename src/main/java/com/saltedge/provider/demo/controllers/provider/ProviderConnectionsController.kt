@@ -3,6 +3,7 @@
  */
 package com.saltedge.provider.demo.controllers.provider
 
+import com.saltedge.provider.demo.callback.ScaServiceCallback
 import com.saltedge.provider.demo.config.APP_LINK_PREFIX_CONNECT
 import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.servlet.ModelAndView
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -24,6 +26,8 @@ class ProviderConnectionsController {
     lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
     lateinit var repository: ScaConnectionsRepository
+    @Autowired
+    lateinit var callbackService: ScaServiceCallback
 
     @GetMapping("/connections")
     fun showConnections(): ModelAndView {
@@ -44,6 +48,16 @@ class ProviderConnectionsController {
             outputStream.flush()
             outputStream.close()
         }
+    }
+
+    @GetMapping("/connections/{connection_id}/revoke")
+    fun revokeConnection(@PathVariable("connection_id") connectionId: Long): ModelAndView {
+        repository.findById(connectionId).orElse(null)?.let {
+            it.revoked = true
+            repository.save(it)
+            callbackService.sendRevokeConnectionCallback(it.connectionId)
+        }
+        return ModelAndView("redirect:/connections")
     }
 
     /**

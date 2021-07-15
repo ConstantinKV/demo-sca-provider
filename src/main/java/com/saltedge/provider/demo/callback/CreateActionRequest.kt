@@ -11,14 +11,14 @@ data class CreateActionRequest(
 )
 
 data class CreateActionRequestData(
-    @JsonProperty("action_id") var actionId: String,
-    @JsonProperty("user_id") var userId: String,
-    @JsonProperty("expires_at") var expiresAt: String,
-    @JsonProperty("authorizations") var authorizations: List<CreateActionAuthorization>
+    @JsonProperty("action_id") var action_id: String,
+    @JsonProperty("user_id") var user_id: String,
+    @JsonProperty("expires_at") var expires_at: String,
+    @JsonProperty("authorizations") var authorizations: List<ActionAuthorization>
 )
 
-data class CreateActionAuthorization(
-    @JsonProperty("connection_id") var connectionId: String,
+data class ActionAuthorization(
+    @JsonProperty("connection_id") var connection_id: String,
     @JsonProperty("iv") var iv: String,
     @JsonProperty("key") var key: String,
     @JsonProperty("data") var data: String
@@ -27,19 +27,31 @@ data class CreateActionAuthorization(
 data class AuthorizationData(
     @JsonProperty("title") var title: String,
     @JsonProperty("description") var description: DescriptionData,
-    @JsonProperty("extra") var extra: ExtraData,
-    @JsonProperty("authorization_code") var authorizationCode: String,
-    @JsonProperty("created_at") var createdAt: String,
-    @JsonProperty("expires_at") var expiresAt: String
+    @JsonProperty("authorization_code") var authorization_code: String,
+    @JsonProperty("created_at") var created_at: String,
+    @JsonProperty("expires_at") var expires_at: String
 )
 
 data class DescriptionData(
-    @JsonProperty("text") var text: String
+    val payment: DescriptionPaymentData? = null,
+    val text: String? = null,
+    val html: String? = null,
+    var extra: ExtraData? = null
+)
+
+data class DescriptionPaymentData(
+    var payee: String? = null,
+    var amount: String? = null,
+    var account: String? = null,
+    var payment_date: String? = null,
+    var reference: String? = null,
+    var fee: String? = null,
+    var exchange_rate: String? = null
 )
 
 data class ExtraData(
-    @JsonProperty("action_date") var actionDate: String,
-    @JsonProperty("device") var device: String,
-    @JsonProperty("location") var location: String,
-    @JsonProperty("ip") var ip: String
+    var action_date: String,
+    var device: String,
+    var location: String,
+    var ip: String
 )
