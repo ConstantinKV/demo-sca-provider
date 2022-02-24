@@ -35,7 +35,7 @@ class ConnectionsController : BaseController() {
             val authRsaPublicKeyPem = CryptoTools.decryptPublicRsaKey(request.data.encRsaPublicKey, rsaPrivateKey)
             KeyTools.convertPemToPublicKey(authRsaPublicKeyPem, KeyTools.Algorithm.RSA)
                 ?: throw BadRequest.WrongRequestFormat(errorMessage = "invalid rsa public key")
-            val responseData = connectionsService.connectRequest(request.data, authRsaPublicKeyPem)
+            val responseData = connectionsService.processConnectRequest(request.data, authRsaPublicKeyPem)
             return ResponseEntity(CreateConnectionResponse(data = responseData), HttpStatus.OK)
         } catch (e: Exception) {
             println(e.message)

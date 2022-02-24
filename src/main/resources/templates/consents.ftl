@@ -32,8 +32,9 @@
           <thead>
             <tr>
                 <th>ID</th>
-                <th class="center">Connection ID</th>
+                <th class="center">User ID</th>
                 <th class="center">Type</th>
+                <th class="center">TPP</th>
                 <th class="center">Revoke</th>
             </tr>
           </thead>
@@ -42,8 +43,9 @@
           <#items as item>
             <tr>
               <td>${item.id}</td>
-              <td class="center">${item.connectionId}</td>
+              <td class="center">${item.userId}</td>
               <td class="center">${item.consentType}</td>
+              <td class="center">${item.tppName}</td>
               <td class="center">
                 <#if item.revoked>
                   <b>revoked</b>
