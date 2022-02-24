@@ -28,25 +28,26 @@ class ScaServiceCallback {
     @Autowired
     lateinit var demoApplicationProperties: DemoApplicationProperties
     @Autowired
-    @Qualifier("ScaServiceCallbackRestTemplateBean")
+//    @Qualifier("ScaServiceCallbackRestTemplateBean")
     lateinit var scaCallbackRest: RestTemplate
-    private var mapper: ObjectMapper = JsonTools.createDefaultMapper()
 
-    @Bean
-    @Qualifier("ScaServiceCallbackRestTemplateBean")
-    fun createScaRest(): RestTemplate {
-        val result = RestTemplate()
-        result.messageConverters.add(0, mappingJacksonHttpMessageConverter());
-        return result
-    }
+//    private var mapper: ObjectMapper = JsonTools.createDefaultMapper()
 
-    @Bean
-    fun mappingJacksonHttpMessageConverter(): MappingJackson2HttpMessageConverter {
-        val messageConverter = MappingJackson2HttpMessageConverter()
-        messageConverter.setPrettyPrint(false)
-        messageConverter.objectMapper = mapper
-        return messageConverter
-    }
+//    @Bean
+//    @Qualifier("ScaServiceCallbackRestTemplateBean")
+//    fun createScaRest(): RestTemplate {
+//        val result = RestTemplate()
+//        result.messageConverters.add(0, mappingJacksonHttpMessageConverter());
+//        return result
+//    }
+
+//    @Bean
+//    fun mappingJacksonHttpMessageConverter(): MappingJackson2HttpMessageConverter {
+//        val messageConverter = MappingJackson2HttpMessageConverter()
+//        messageConverter.setPrettyPrint(false)
+//        messageConverter.objectMapper = mapper
+//        return messageConverter
+//    }
 
     @Async
     fun sendSuccessAuthenticationCallback(scaConnectionId: String, accessToken: String, rsaPublicKey: String) {

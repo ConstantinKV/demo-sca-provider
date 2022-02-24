@@ -30,8 +30,8 @@ class ConnectionsService {
     @Autowired
     lateinit var callbackService: ScaServiceCallback
 
-    @Throws(NotFound.UserNotFound::class)
-    fun connectRequest(data: CreateConnectionRequestData, authRsaPublicKeyPem: String): CreateConnectionResponseData {
+    @Throws(NotFound.UserNotFound::class, BadRequest.WrongRequestFormat::class)
+    fun processConnectRequest(data: CreateConnectionRequestData, authRsaPublicKeyPem: String): CreateConnectionResponseData {
         val userId = data.connectQuery?.replace(SCA_CONNECT_QUERY_PREFIX, "")
         return when {
             userId == null -> {
@@ -46,11 +46,11 @@ class ConnectionsService {
                 onFailAuthentication(
                     connectionId = data.connectionId,
                     returnUrl = data.returnUrl,
-                    message = "Invalid connect query [${data.connectQuery}]"
+                    message = "Invalid connect query [${data.connectQuery}], user not found"
                 )
             }
             connectionsRepository.findFirstByConnectionId(data.connectionId) != null -> {
-                throw BadRequest.WrongRequestFormat(errorMessage = "Not unique values in query")
+                throw BadRequest.WrongRequestFormat(errorMessage = "Connection with id:${data.connectionId} exist")
             }
             else -> {
                 val authenticationUrl = ScaAuthController.authenticationPageUrl(
