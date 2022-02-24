@@ -62,7 +62,7 @@ class ScaServiceCallback {
         val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/success_authentication"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendSuccessAuthenticationCallback [${Instant.now()}]:statusCode: ${result?.statusCode}")
+        println("sendSuccessAuthenticationCallback: [${Instant.now()}] scaConnectionId:$scaConnectionId result:${result?.statusCode}")
     }
 
     @Async
@@ -75,7 +75,7 @@ class ScaServiceCallback {
         val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/fail_authentication"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendFailAuthenticationCallback [${Instant.now()}]:statusCode: ${result?.statusCode}")
+        println("sendFailAuthenticationCallback: [${Instant.now()}] scaConnectionId:$scaConnectionId result:${result?.statusCode}")
     }
 
     @Async
@@ -85,7 +85,7 @@ class ScaServiceCallback {
         val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/connections/$scaConnectionId/revoke"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendRevokeConnectionCallback [${Instant.now()}]:result: " + result?.body?.toString())
+        println("sendRevokeConnectionCallback: [${Instant.now()}] scaConnectionId:$scaConnectionId result:${result?.statusCode}")
     }
 
     @Async
@@ -105,7 +105,7 @@ class ScaServiceCallback {
         val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/actions"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
-        println("sendActionCreateCallback [${Instant.now()}]:result: " + result?.body?.toString())
+        println("sendActionCreateCallback: [${Instant.now()}] action_id:${action.id} result:${result?.statusCode}")
     }
 
     @Async
@@ -126,7 +126,7 @@ class ScaServiceCallback {
         val url: String = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/consents"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.POST, url, signature, request)
-        println("sendConsentCreateCallback [${Instant.now()}]:result: " + result?.body?.toString())
+        println("sendConsentCreateCallback: [${Instant.now()}] scaConsentId:${consent.id} result:${result?.statusCode}")
     }
 
     @Async
@@ -136,7 +136,7 @@ class ScaServiceCallback {
         val url = demoApplicationProperties.scaServiceUrl + "/api/sca/v1/consents/$scaConsentId/revoke"
         val signature = JwsTools.encode(requestData = request.data, expiresAt = requestExpiresAt, key = demoApplicationProperties.rsaPrivateKey)
         val result = doCallbackRequest(HttpMethod.PUT, url, signature, request)
-        println("sendRevokeConsentCallback [${Instant.now()}]:result: " + result?.body?.toString())
+        println("sendRevokeConsentCallback: [${Instant.now()}] scaConsentId:$scaConsentId result:${result?.statusCode}")
     }
 
     private fun doCallbackRequest(method: HttpMethod, url: String, signature: String, request: Any): ResponseEntity<Any>? {

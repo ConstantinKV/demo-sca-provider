@@ -66,6 +66,7 @@ class ProviderConsentsController {
         @RequestParam("transactions", required = false) transactions: String?
     ): ModelAndView {
         val connections = connectionsRepository.findByUserId(userId)
+            .filter { it.isAuthorized && !it.revoked }
         if (connections.isNotEmpty()) {
             val consent = ScaConsentEntity()
             consent.userId = connections.first().userId
