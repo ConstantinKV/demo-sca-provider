@@ -95,3 +95,25 @@ fun createEncryptedEncryptedConsent(data: String, expiresAt: Instant, connection
         data = Base64.getEncoder().encodeToString(CryptoTools.encryptAes(data, key, iv))
     )
 }
+
+fun encryptAccessToken(token: String, rsaPublicKey: String): String {
+    val publicKey = KeyTools.convertPemToPublicKey(rsaPublicKey, KeyTools.Algorithm.RSA)
+    val jsonToken = AccessTokenWrapper(token).toJson() ?: ""
+    val bytes = CryptoTools.encryptRsa(jsonToken.toByteArray(), publicKey)
+//    val result = Base64.getUrlEncoder().encodeToString(bytes)
+    val result = Base64.getEncoder().encodeToString(bytes)
+    println("encryptAccessToken.token: $token")
+    println("encryptAccessToken.jsonToken: $jsonToken")
+    println("encryptAccessToken.encryptedToken: $result")
+    return result
+}
+
+fun getRandomString(size: Int): String {
+    val rand = Random()
+    val totalCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    var randomString = ""
+    for (i in 0 until size) {
+        randomString += totalCharacters[rand.nextInt(totalCharacters.length - 1)]
+    }
+    return randomString
+}

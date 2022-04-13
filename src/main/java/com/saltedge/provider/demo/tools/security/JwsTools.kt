@@ -3,12 +3,10 @@
  */
 package com.saltedge.provider.demo.tools.security
 
-import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.tools.JsonTools
 import io.jsonwebtoken.*
 import io.jsonwebtoken.jackson.io.JacksonSerializer
-import org.springframework.beans.factory.annotation.Autowired
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.Instant
