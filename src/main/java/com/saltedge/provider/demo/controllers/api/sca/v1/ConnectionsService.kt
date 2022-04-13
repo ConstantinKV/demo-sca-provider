@@ -3,6 +3,7 @@
  */
 package com.saltedge.provider.demo.controllers.api.sca.v1
 
+import com.saltedge.provider.demo.callback.AccessTokenWrapper
 import com.saltedge.provider.demo.callback.ScaServiceCallback
 import com.saltedge.provider.demo.config.DemoApplicationProperties
 import com.saltedge.provider.demo.config.SCA_CONNECT_QUERY_PREFIX
@@ -14,6 +15,8 @@ import com.saltedge.provider.demo.errors.BadRequest
 import com.saltedge.provider.demo.errors.NotFound
 import com.saltedge.provider.demo.model.ScaConnectionEntity
 import com.saltedge.provider.demo.model.ScaConnectionsRepository
+import com.saltedge.provider.demo.tools.encryptAccessToken
+import com.saltedge.provider.demo.tools.getRandomString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
@@ -80,18 +83,22 @@ class ConnectionsService {
             println("errorAuthRedirect to $result [Connection: $scaConnectionId, User: $userId]")
             result
         } else {
-            val accessToken = UUID.randomUUID().toString()
+            val accessToken = getRandomString(32)
             connection.accessToken = accessToken
             connection.userId = userId
             connectionsRepository.save(connection)
+
             callbackService.sendSuccessAuthenticationCallback(
                 scaConnectionId = scaConnectionId,
                 accessToken = accessToken,
                 rsaPublicKey = connection.rsaPublicKey
             )
+
+            val encryptedToken = encryptAccessToken(accessToken, connection.rsaPublicKey)
+            val encodedToken = URLEncoder.encode(encryptedToken, "UTF-8")
             UriComponentsBuilder
                 .fromUriString(connection.returnUrl)
-                .queryParam("access_token", accessToken)
+                .queryParam("access_token", encodedToken)
                 .build().toUriString()
         }
     }
