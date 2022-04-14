@@ -26,7 +26,7 @@
               <div class="row">
                 <div class="input-field">
                   <input value="${sca_url}" id="sca_url" name="sca_url" type="text" class="validate">
-                  <label class="active" for="sca_service_url">SCA Service URL</label>
+                  <label class="active" for="sca_url">SCA Service URL</label>
                 </div>
               </div>
               <div class="row">
@@ -46,6 +46,14 @@
             <input type="submit" class ="btn waves-effect waves-light center" value = "Submit"/>
           </div>
         <form>
+
+          <br>
+          <div class="row">
+            <label class="active" for="app_url">App URL</label>
+            <p id="app_url">${app_url}</p>
+            <label class="active" for="sca_key_file">SCA Key file</label>
+            <p id="sca_key_file">${sca_key_file}</p>
+          </div>
       </div>
       <br><br>
     </div>
