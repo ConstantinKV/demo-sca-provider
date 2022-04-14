@@ -15,14 +15,16 @@ import org.springframework.web.servlet.ModelAndView
 class SettingsController {
 
     @Autowired
-    lateinit var propertiesDemo: DemoApplicationProperties
+    lateinit var properties: DemoApplicationProperties
 
     @GetMapping("/settings")
     fun showSettings(): ModelAndView {
         return ModelAndView("settings")
-            .addObject("sca_url", propertiesDemo.scaServiceUrl)
-            .addObject("provider_id", propertiesDemo.scaProviderId)
-            .addObject("sca_rsa_key", propertiesDemo.scaServiceRsaPublicKeyPem)
+            .addObject("sca_url", properties.scaServiceUrl)
+            .addObject("provider_id", properties.scaProviderId)
+            .addObject("sca_rsa_key", properties.scaServiceRsaPublicKeyPem)
+            .addObject("app_url", properties.applicationUrl)
+            .addObject("sca_key_file", properties.scaServicePublicRsaKeyFile)
     }
 
     @PostMapping("/settings")
@@ -31,14 +33,14 @@ class SettingsController {
         @RequestParam("provider_id") providerId: String,
         @RequestParam("sca_rsa_key") scaServiceRsaPublicKey: String
     ): ModelAndView {
-        if (scaServiceUrl.isNotBlank() && scaServiceUrl != propertiesDemo.scaServiceUrl) {
-            propertiesDemo.scaServiceUrl = scaServiceUrl
+        if (scaServiceUrl.isNotBlank() && scaServiceUrl != properties.scaServiceUrl) {
+            properties.scaServiceUrl = scaServiceUrl
         }
-        if (providerId.isNotBlank() && providerId != propertiesDemo.scaProviderId) {
-            propertiesDemo.scaProviderId = providerId
+        if (providerId.isNotBlank() && providerId != properties.scaProviderId) {
+            properties.scaProviderId = providerId
         }
-        if (scaServiceRsaPublicKey != propertiesDemo.scaServiceRsaPublicKeyPem) {
-            propertiesDemo.scaServiceRsaPublicKeyPem = providerId
+        if (scaServiceRsaPublicKey != properties.scaServiceRsaPublicKeyPem) {
+            properties.scaServiceRsaPublicKeyPem = providerId
         }
         return ModelAndView("redirect:/settings")
     }
